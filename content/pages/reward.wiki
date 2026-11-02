@@ -1,0 +1,30 @@
+title: Reward
+cats: Concepts
+origin: seed
+at: 2026-11-02T00:52:49.532410Z
+author: Claude
+summary: Original version
+seedhash: 54c2eeb1e5f84fdc
+---
+A '''reward''' is the number an attempt earns. RL changes the [[policy]] to earn more of it, so the reward ''is'' the definition of the task as far as training is concerned.
+
+== Binary and partial rewards ==
+The simplest reward is '''1 if the task was done, 0 if not'''. TRL's documentation reports that binary end-state rewards gave cleaner training signals than partial credit in their browser experiments.<ref>[https://huggingface.co/docs/trl/en/openenv TRL OpenEnv documentation]</ref> Partial credit ("3 of 4 fields right = 0.75") can help when full success is rare, but it is easier to game.
+
+== Shaping terms ==
+Small extra terms can encode preferences beyond success:
+* a small penalty per tool call, to discourage loops (our sessions have a long tail of 138–359 calls; see [[sitegeist-usage]])
+* a penalty for blank, ungrouped or focus-stealing tabs, which [[browser-agent-bench]] already detects
+* a penalty for hitting the turn limit
+Keep shaping terms small compared with the success reward, or the model learns to do nothing quickly.
+
+== Where rewards come from ==
+{{youtube X6R4loxcn0k ''Training Agents with RL''|OpenPipe}}
+
+* A [[verifier]]: code that checks the end state. Preferred whenever possible.
+* An [[llm-judge]]: a strong model grades or ranks the attempts. Used when code can't judge.
+
+== Checklist ==
+# Can a human agree with the reward on 20 random attempts?
+# Can the model get reward without doing the task? (See [[reward-hacking]].)
+# Does the starting model get reward sometimes, but not always?

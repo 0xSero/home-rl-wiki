@@ -1,0 +1,12 @@
+title: Sandbox
+cats: Help
+origin: user
+at: 2026-11-02T00:53:41.264815Z
+author: Claude
+summary: Create sandbox for test edits
+---
+The '''sandbox''' is a page for trying out wiki markup. Edit it freely; nothing here is permanent.
+
+== Try it ==
+* Make a [[lora|link]].
+* Embed a video: {{youtube LPZh9BOjkQs A test video|3Blue1Brown}}

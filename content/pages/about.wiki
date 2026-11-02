@@ -1,0 +1,30 @@
+title: Help: editing
+cats: Help
+origin: seed
+at: 2026-11-02T00:54:05.368021Z
+author: Claude
+summary: Updated original version
+seedhash: e67f5ab583f6dfb9
+---
+'''Home RL Wiki''' is a working reference for RL post-training on our own hardware. Every article can be edited with the '''Edit''' tab. Edits are saved with a revision history ('''View history''') and appear in [[Special:RecentChanges|Recent changes]]. Each article also has a '''Talk''' page for questions and notes. Talk pages work like Wikipedia's: use '''Add topic''', and sign with <code><nowiki>~~~~</nowiki></code>. Ask Claude in the terminal to read and answer them. Everything is stored as plain text files in <code><nowiki>~/training-data-rl/wiki/content/</nowiki></code>.
+
+== Markup ==
+<div class="tw"><table class="wt">
+<tr><th>You type</th><th>You get</th></tr>
+<tr><td><code><nowiki>== Heading ==</nowiki></code></td><td>Section heading (<code><nowiki>=== Sub ===</nowiki></code> for subsections)</td></tr>
+<tr><td><code><nowiki>'''bold'''</nowiki></code>, <code><nowiki>''italic''</nowiki></code></td><td><b>bold</b>, <i>italic</i></td></tr>
+<tr><td><code><nowiki>[[lora]]</nowiki></code>, <code><nowiki>[[lora|adapters]]</nowiki></code></td><td>Link to another article; red if it doesn't exist yet</td></tr>
+<tr><td><code><nowiki>[https://example.com text]</nowiki></code></td><td>External link</td></tr>
+<tr><td><code><nowiki>* item</nowiki></code>, <code><nowiki># item</nowiki></code></td><td>Bulleted or numbered list</td></tr>
+<tr><td><code><nowiki><ref>source</ref></nowiki></code></td><td>Numbered footnote, listed under References</td></tr>
+<tr><td><code><nowiki>{{stub}}</nowiki></code>, <code><nowiki>{{note text}}</nowiki></code>, <code><nowiki>{{main slug}}</nowiki></code></td><td>Notice boxes and hatnotes</td></tr>
+<tr><td><code><nowiki>{{youtube VIDEOID Caption|Channel}}</nowiki></code></td><td>Embedded YouTube video, floated right like an image</td></tr>
+<tr><td><code><nowiki>{{videos</nowiki></code> then one <code><nowiki>ID Caption|Channel</nowiki></code> per line, then <code><nowiki>}}</nowiki></code></td><td>Video gallery</td></tr>
+<tr><td><code><nowiki>{{paper 2402.03300}}</nowiki></code></td><td>arXiv paper box with title, authors and abstract, fetched by the local server</td></tr>
+<tr><td><code><nowiki>{{card https://…}}</nowiki></code>, <code><nowiki>{{cards url url …}}</nowiki></code></td><td>Link preview card(s) with the page's title, description and image</td></tr>
+<tr><td><code><nowiki>{{infobox Title</nowiki></code> then lines <code><nowiki>Key: value</nowiki></code> then <code><nowiki>}}</nowiki></code></td><td>Infobox</td></tr>
+</table></div>
+Blank lines separate paragraphs. HTML tables are allowed; keep each table free of blank lines.
+
+== New pages ==
+Click any red link and press '''Create'''.

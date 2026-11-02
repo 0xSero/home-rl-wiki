@@ -1,0 +1,11 @@
+title: Questions for you
+cats: Project
+origin: seed
+at: 2026-11-02T00:52:49.544334Z
+author: Claude
+summary: Original version
+seedhash: c093594815fae5ec
+---
+{{note These answers decide what gets built first. They save to the wiki as you go, and Claude reads them from here. Pick what fits; the text boxes are optional.}}
+
+{{form}}

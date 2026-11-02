@@ -1,0 +1,1370 @@
+@@@ main
+title: Main Page
+cats: 
+---
+<div class="mp-cols"><div>
+<div class="mp-box blue"><h2 class="mph">From today's featured article</h2><div class="in">
+{{youtube DhRoTONcyZE LoRA, explained by its inventor|Edward Hu}}
+'''[[lora|LoRA]]''' (Low-Rank Adaptation) trains a small add-on beside a frozen model, so the original weights are never written. Unload the adapter and you have exactly the original model back. For [[reinforcement-learning|reinforcement learning]] in particular, a 2025 study by Thinking Machines found that LoRA matches training every weight, '''even at rank 1''', because each attempt carries only a few bits of information. Between training steps only the adapter, a few megabytes, has to cross the network. That is what makes it practical to split the work between our [[rtx-pro-6000|RTX PRO 6000s]], which generate attempts, and our [[dgx-spark|DGX Sparks]], which train on them. ([[lora|Full article…]])
+</div></div>
+<div class="mp-box green"><h2 class="mph">Did you know…</h2><div class="in"><ul>
+<li>… that our coding agents made about '''30,500''' Sitegeist browser calls in seven weeks, and about half of them came from open models we could train? ([[sitegeist-usage]])</li>
+<li>… that '''61%''' of failed browser calls were timeouts, which is why RL training runs against local test pages instead of live sites? ([[rollout]])</li>
+<li>… that RL cannot teach a task the model ''never'' solves, because when every attempt scores the same there is nothing to compare? ([[pass-at-k]])</li>
+<li>… that [[grpo|GRPO]] needs no critic model and simply compares each attempt with its group's average?</li>
+<li>… that halving the page text in each attempt roughly halves training time? ([[run-time]])</li>
+<li>… that [[deepseek-v4-1-flash|DeepSeek-V4.1-Flash-1017]] is too large to train at home, but could grade other models' attempts as an [[llm-judge|LLM judge]]?</li>
+</ul></div></div>
+<div class="mp-box"><h2 class="mph">Start here</h2><div class="in">New to all of this? Read in order: [[post-training]] → [[reinforcement-learning]] → [[grpo]] → [[rollout]] → [[lora]] → [[cluster-layout]] → [[run-time]] → [[roadmap]]. Then follow the [[learning-path]] of videos, courses and notebooks, or browse the [[video-library]].</div></div>
+</div><div>
+<div class="mp-box"><h2 class="mph">Project news</h2><div class="in"><ul>
+<li>'''1 November 2026''' – A survey of 328 Sitegeist sessions finds about 30,500 browser tool calls since 17 September. ([[sitegeist-usage]])</li>
+<li>'''31 October''' – FP8, INT8 and INT4 versions of [[nanbeige4-3-33b|Nanbeige4.3-33B]] are published.</li>
+<li>'''24 October''' – Nanbeige releases [[nanbeige4-3-33b|Nanbeige4.3-33B]], a dense 33B model in the Llama architecture.</li>
+<li>'''17 October''' – DeepSeek releases [[deepseek-v4-1-flash|DeepSeek-V4.1-Flash-1017]], now serving on pop-os.</li>
+<li>'''Open''' – verl pull request #7483 would add LoRA RL for mixture-of-experts models such as [[glm-5-3-flash|GLM-5.3-Flash]]. ([[verl]])</li>
+</ul></div></div>
+<div class="mp-box"><h2 class="mph">Featured video</h2><div class="in">
+{{youtube 7xTGNNLPyMI Deep Dive into LLMs like ChatGPT|Andrej Karpathy}}
+Andrej Karpathy's long walk-through of how a chat model is built: pretraining on internet text, supervised fine-tuning on conversations, then reinforcement learning. It is the single best background for this wiki. More in the [[video-library]].
+</div></div>
+<div class="mp-box"><h2 class="mph">Our hardware</h2><div class="in"><ul>
+<li>[[dgx-spark|DGX Spark]] × 4: 128 GB each, slow memory bandwidth, used for training</li>
+<li>[[rtx-pro-6000|RTX PRO 6000]] × 4 in pop-os: 96 GB each, fast, now serving DeepSeek-V4.1-Flash</li>
+<li>[[cluster-layout]]: which machines generate, train and judge</li>
+<li>[[run-time|Run-time estimator]]: how long a training run would take</li>
+</ul></div></div>
+<div class="mp-box"><h2 class="mph">Open questions</h2><div class="in">Thirteen questions decide what gets built first: what to train, whether the PRO 6000s can be lent, and what "economic system" means. '''[[questions|Answer them here →]]'''</div></div>
+</div></div>
+<div class="mp-box"><h2 class="mph">Wiki areas</h2><div class="in">[[Category:Concepts|Concepts]] · [[Category:Algorithms|Algorithms]] · [[Category:Hardware|Hardware]] · [[Category:Models|Models]] · [[Category:Frameworks|Frameworks]] · [[Category:Project|Project]] · [[Category:Videos|Videos]] · [[Category:Help|Help]] · [[Special:AllPages|All pages]] · [[Special:RecentChanges|Recent changes]]</div></div>
+
+@@@ post-training
+title: Post-training
+cats: Concepts
+---
+{{infobox Post-training
+Comes after: Pretraining
+Main kinds: Supervised fine-tuning (SFT), [[reinforcement-learning|reinforcement learning]], preference tuning
+Typical cost: Hours to days on a few GPUs
+Changes: A copy of the weights, or a [[lora|LoRA adapter]] on top}}
+
+{{youtube 7xTGNNLPyMI ''Deep Dive into LLMs like ChatGPT'': the whole pipeline from pretraining to RL, for a general audience|Andrej Karpathy}}
+
+'''Post-training''' is everything done to a language model after pretraining. Pretraining teaches a model to predict the next token over trillions of tokens of text. Post-training turns that raw predictor into something that follows instructions, uses tools and finishes tasks.
+
+Every model in [[model-comparison|our candidate list]] has already been post-trained by its lab. This wiki is about adding one more short, narrow stage on top, aimed at the browser tasks we actually do.
+
+{{fig stages}}
+
+== Pretraining ==
+{{youtube LPZh9BOjkQs ''Large Language Models explained briefly'': a short visual primer|3Blue1Brown}}
+
+The model reads a huge corpus and learns to guess the next token. It costs months on thousands of GPUs, and labs do it for us. The result knows a lot but has no particular goal.
+
+== Supervised fine-tuning ==
+'''Supervised fine-tuning''' (SFT) shows the model worked examples, "here is a request and here is the ideal answer", and trains it to copy them. It teaches format, style and basic tool use. Its weakness is that somebody has to write the ideal answer, and the model only ever sees good examples, never its own mistakes.
+
+== Reinforcement learning ==
+{{youtube 2MBJOuVq380 ''RLHF: From Zero to ChatGPT''|Hugging Face}}
+
+{{main reinforcement-learning}}
+
+In [[reinforcement-learning|reinforcement learning]] the model makes its own attempts, a [[verifier]] scores them, and the model is pushed toward the attempts that scored well. No ideal answer is needed, only a way to tell success from failure. For browser tasks that is far easier than writing out the perfect sequence of forty clicks.
+
+== Why RL after SFT ==
+* SFT copies, RL ''selects''. RL learns from the model's own successes and failures in the real environment.
+* RL makes a model ''reliable'' at things it can already sometimes do. See [[pass-at-k]].
+* RL tends to cause less [[forgetting]] of other skills than SFT does.<ref>[https://arxiv.org/abs/2509.04259 Shenfeld et al., "RL's Razor: Why Online Reinforcement Learning Forgets Less", 2025]</ref>
+* A short SFT "warm start" is still useful when the model never succeeds at a task. See [[roadmap]].
+
+
+== Videos ==
+{{videos
+zjkBMFhNj_g ''Intro to Large Language Models'' (1-hour talk)|Andrej Karpathy
+}}
+
+== Further reading ==
+{{cards https://rlhfbook.com/ https://huggingface.co/learn/llm-course/chapter12/1}}
+
+{{paper 2509.04259}}
+
+== See also ==
+* [[reinforcement-learning]]
+* [[lora]]
+* [[learning-path]]
+
+@@@ reinforcement-learning
+title: Reinforcement learning
+cats: Concepts
+---
+{{infobox Reinforcement learning (for LLMs)
+Learns from: Scores, not answers
+Loop: [[rollout|Attempt]] → [[reward|score]] → update
+Main algorithm here: [[grpo|GRPO]] and variants
+Trained part: A [[lora|LoRA adapter]]; base weights frozen
+Typical run: 100–300 steps}}
+
+{{youtube PAz_-xPJcRM ''The RLVR Revolution'': how post-training moved from human feedback to verifiable rewards|Latent Space, with Nathan Lambert}}
+
+'''Reinforcement learning''' ('''RL''') is a way of training a model by letting it try things and telling it how well each try went. For language models, a "try" is a complete answer or, for agents, a complete multi-step [[rollout|attempt at a task]]. The model is updated so that the token choices that led to high scores become more likely.
+
+== The loop ==
+{{fig loop}}
+
+One trip around the loop is one '''step'''. In each step:
+# The current [[policy]] (base model + adapter) attempts a batch of tasks, several times each.
+# A [[verifier]] or an [[llm-judge|LLM judge]] gives each attempt a [[reward]].
+# Each attempt's reward is compared to the others in its group (the [[advantage]]).
+# The adapter is nudged toward the above-average attempts and away from the below-average ones.
+# The new adapter is used for the next step's attempts.
+
+== What RL can and cannot do ==
+RL mostly '''sharpens''' what a model can already sometimes do. If a model solves a task 2 times out of 8, RL can push that toward 7 out of 8. If it solves it 0 times out of 8, every attempt gets the same score, there is nothing to compare, and the model learns nothing from that task.
+
+This makes '''task selection''' the most important decision in an RL project: keep tasks where the starting model succeeds roughly 10–70% of the time. See [[roadmap#baseline|Baseline]] in the roadmap and [[pass-at-k]].
+
+== RL for LLMs versus classic RL ==
+Classic RL trains agents to play games or control robots, where an action is a joystick move. For language models the actions are '''tokens''', and an episode is one complete answer or agent session. The same ideas apply, with two simplifications that made RL practical for LLMs:
+* The starting model is already good, so it needs a nudge, not training from scratch.
+* Rewards can often be checked by code (did the test pass, does the answer match), which is called ''RL with verifiable rewards'' (RLVR).<ref>[https://arxiv.org/abs/2411.15124 Lambert et al., "Tülu 3: Pushing Frontiers in Open Language Model Post-Training", 2024 (introduces the RLVR term)]</ref>
+
+== RLVR and RLHF ==
+{{youtube o4AB5xHIDdM ''The Rise of Reasoning Models'': lecture 5 of the RLHF Book course|Nathan Lambert}}
+
+* '''RLVR''': the reward comes from a program. Our browser tasks fit here: the form either submitted the right values or it didn't.
+* '''RLHF''': the reward comes from a model trained on human preferences ("which answer is better?"). Used for tone and helpfulness, where no program can judge.
+* In between, an [[llm-judge|LLM judge]] such as DeepSeek-V4.1-Flash can grade attempts that code can't check.
+
+== Where the cost goes ==
+Each step has two halves: '''generating attempts''' (rollouts) and '''training''' on them. For browser agents both are heavy, because every attempt contains a lot of page text. The [[run-time]] article estimates both halves for our hardware.
+
+
+== Videos ==
+{{videos
+yYZBd25rl4Q ''Why RL Won''|Latent Space, with Kyle Corbitt
+qGyFrqc34yc RLHF with math derivations and PyTorch code|Umar Jamil
+}}
+
+== Further reading ==
+{{paper 2411.15124}}
+
+{{cards https://rlhfbook.com/ https://magazine.sebastianraschka.com/p/the-state-of-llm-reasoning-model-training}}
+
+== See also ==
+* [[grpo]]
+* [[rollout]]
+* [[reward-hacking]]
+* [[learning-path]]
+
+@@@ policy
+title: Policy
+cats: Concepts
+---
+'''Policy''' is the RL name for the thing that decides what to do next. Here it is the language model plus its current [[lora|LoRA adapter]]. Given everything so far (the task, previous tool calls, page text), the policy produces the next tokens, which become the next action.
+
+"Updating the policy" means changing the adapter's numbers. The base model never changes. During a run there are several versions of the policy: the one that generated the current attempts, the one being trained, and sometimes a frozen '''reference policy''' (the original model) for the [[kl-penalty]].
+
+== See also ==
+* [[on-off-policy]]
+* [[reinforcement-learning]]
+
+@@@ rollout
+title: Rollout
+cats: Concepts
+---
+{{infobox Rollout
+Also called: Episode, trajectory, attempt
+Contains: Every turn of one attempt at one task
+Scored by: A [[verifier]] or [[llm-judge|judge]]
+Typical size here: 12 turns, ~24k tokens}}
+
+A '''rollout''' is one complete attempt at one task, recorded turn by turn. For a browser agent it is a conversation between the model and the browser. The model chooses a tool call, Sitegeist runs it, the page text comes back, and this repeats until the model says it is done or runs out of turns. Then the result is scored.
+
+{{fig rollout}}
+
+== Which tokens get trained ==
+Only the model's own tokens (its reasoning and tool calls) receive the training signal. The task text and the page observations are '''masked''': the model reads them, but the loss ignores them. They still cost compute, because the model has to process them in both generation and training.
+
+== Groups ==
+{{youtube gEDl9C8s_-4 ''How to Train Your Agent: Building Reliable Agents with RL''|AI Engineer, Kyle Corbitt}}
+
+[[grpo|GRPO]] attempts each task several times (the '''group''', usually 8) so the attempts can be compared with each other. 16 tasks × 8 attempts = 128 rollouts per step.
+
+== Why browser rollouts are slow ==
+Each turn waits for a real page to load and render. In our [[sitegeist-usage|Sitegeist history]], 61% of failed tool calls were timeouts, mostly on heavy pages such as Gmail. An RL [[environment]] should therefore run against fast local fixtures and echo servers, not live websites. That keeps rollouts quick and the rewards repeatable.
+
+== Synchronous and asynchronous ==
+In the simplest setup, rollouts and training take turns on the same machines. In an '''asynchronous''' setup, one machine group generates the next batch while another trains on the last one. The attempts are then one adapter version old, which works fine in practice. See [[on-off-policy]] and [[cluster-layout]].
+
+== See also ==
+* [[environment]]
+* [[run-time]]
+
+@@@ environment
+title: Environment
+cats: Concepts, Project
+---
+An '''environment''' is the world the [[policy]] acts in, plus the rules for starting and ending an attempt and computing its [[reward]]. Most RL frameworks expect three operations:
+* '''reset(task)''': set up a fresh world, for example open a blank browser on a local test page.
+* '''step(action)''': run one tool call and return what the model sees next (page text, a screenshot, an error).
+* '''reward()''': at the end, check the final state and return a score.
+
+== Browser environments ==
+{{youtube ixLXrgF77ME ''Agents and Multi-Agent Communication'' (CMU lecture by a WebArena co-author)|Graham Neubig}}
+
+Public ones include BrowserGym<ref>[https://github.com/ServiceNow/BrowserGym BrowserGym (ServiceNow)] and [https://arxiv.org/abs/2412.05467 the BrowserGym paper]</ref>, WebArena<ref>[https://arxiv.org/abs/2307.13854 Zhou et al., "WebArena", 2023]</ref>, WorkArena<ref>[https://arxiv.org/abs/2403.07718 Drouin et al., "WorkArena", 2024]</ref> and Mind2Web<ref>[https://arxiv.org/abs/2306.06070 Deng et al., "Mind2Web", 2023]</ref>. Hugging Face's OpenEnv wraps BrowserGym for TRL.<ref>[https://huggingface.co/docs/trl/en/openenv TRL OpenEnv documentation]</ref>
+
+== Our environment ==
+{{main browser-agent-bench}}
+
+Our own [[browser-agent-bench]] skill already does most of this for Sitegeist: local sandbox pages, ground-truth tasks and code verifiers. Turning it into an RL environment means wrapping it in reset / step / reward, running many copies at once, and growing it from 5 tasks to a few dozen.
+
+== Design rules ==
+* Use local fixtures, not live sites. Live pages change, which makes the same attempt score differently on different days.
+* Never let the model touch what the verifier reads. See [[reward-hacking]].
+* Cap turns and time per attempt, so a stuck attempt ends with reward 0 instead of stalling the step.
+
+== Videos ==
+{{videos
+VPcsAiUyu3Q CMU Advanced NLP 2026, lecture 18: Agents|Sean Welleck, with Zora Wang
+9hkjq6hQTYo ''How To Build A Computer-Using Agent''|Cobus Greyling
+}}
+
+== Further reading ==
+{{paper 2412.05467}}
+
+{{paper 2307.13854}}
+
+{{cards https://huggingface.co/docs/trl/en/openenv https://github.com/ServiceNow/BrowserGym}}
+
+@@@ reward
+title: Reward
+cats: Concepts
+---
+A '''reward''' is the number an attempt earns. RL changes the [[policy]] to earn more of it, so the reward ''is'' the definition of the task as far as training is concerned.
+
+== Binary and partial rewards ==
+The simplest reward is '''1 if the task was done, 0 if not'''. TRL's documentation reports that binary end-state rewards gave cleaner training signals than partial credit in their browser experiments.<ref>[https://huggingface.co/docs/trl/en/openenv TRL OpenEnv documentation]</ref> Partial credit ("3 of 4 fields right = 0.75") can help when full success is rare, but it is easier to game.
+
+== Shaping terms ==
+Small extra terms can encode preferences beyond success:
+* a small penalty per tool call, to discourage loops (our sessions have a long tail of 138–359 calls; see [[sitegeist-usage]])
+* a penalty for blank, ungrouped or focus-stealing tabs, which [[browser-agent-bench]] already detects
+* a penalty for hitting the turn limit
+Keep shaping terms small compared with the success reward, or the model learns to do nothing quickly.
+
+== Where rewards come from ==
+{{youtube X6R4loxcn0k ''Training Agents with RL''|OpenPipe}}
+
+* A [[verifier]]: code that checks the end state. Preferred whenever possible.
+* An [[llm-judge]]: a strong model grades or ranks the attempts. Used when code can't judge.
+
+== Checklist ==
+# Can a human agree with the reward on 20 random attempts?
+# Can the model get reward without doing the task? (See [[reward-hacking]].)
+# Does the starting model get reward sometimes, but not always?
+
+@@@ verifier
+title: Verifier
+cats: Concepts
+---
+A '''verifier''' is code that computes the [[reward]] from the final state of an attempt. The rule is to '''never trust what the model says it did'''. The verifier checks the world itself.
+
+== Examples from our bench ==
+* '''Canvas tasks''' (tldraw, Excalidraw): the sandbox page mirrors the drawing into storage, and a check script reads it back and confirms the shapes, labels and the arrow bound between them.
+* '''Multi-tab tasks''': the true answers (latest release versions, top Hacker News stories) are fetched independently from the sites' APIs and compared with what the model reported.
+* '''Form round-trip''': the model submits a form to an echo server, and the verifier compares the echoed values with the expected ones.
+
+See [[browser-agent-bench]] for file paths.
+
+== Good verifiers ==
+* deterministic: the same end state always gets the same score
+* independent: they read state the model cannot edit
+* fast: they run thousands of times per training run
+
+@@@ llm-judge
+title: LLM judge
+cats: Concepts
+---
+{{infobox LLM judge
+Use when: Code can't check the result
+Example: OpenPipe RULER
+Our candidate judge: [[deepseek-v4-1-flash|DeepSeek-V4.1-Flash-1017]] on [[rtx-pro-6000|pop-os]]}}
+
+{{youtube 7EGF0Mc0_os Eugene Yan on using LLMs as judges|Jason Liu}}
+
+An '''LLM judge''' is a strong language model asked to grade attempts. It is used when success can't be checked by code, for example "did this summary of the inbox capture what needs a reply?"
+
+== Ranking instead of scoring ==
+OpenPipe's '''RULER''' shows the judge a whole [[grpo|group]] of 4–8 attempts at the same task and asks it to rank them, instead of scoring each one alone. Because [[grpo|GRPO]] only needs ''relative'' quality within a group, ranking is enough and is easier for the judge to get right. OpenPipe reports that RULER beat hand-written rewards on 3 of 4 tasks they tried.<ref>[https://art.openpipe.ai/fundamentals/ruler OpenPipe ART documentation: RULER]</ref>
+
+== Using what is already running ==
+DeepSeek-V4.1-Flash-1017 already serves on the RTX PRO 6000s. It could act as the judge without being evicted, while the [[dgx-spark|Sparks]] generate and train. See [[cluster-layout]].
+
+== Risks ==
+* The policy can learn to please the judge rather than do the task. Spot-check judged attempts by hand.
+* Judging costs inference time on every attempt.
+* Prefer a [[verifier]] wherever one is possible, and keep judges for the remainder.
+
+== Videos ==
+{{videos
+a3SMraZWNNs ''How to Systematically Set Up LLM Evals''|Dave Ebbelaar
+BsWxPI9UM4c ''Why AI evals are the hottest new skill''|Lenny's Podcast
+}}
+
+== Further reading ==
+{{cards https://art.openpipe.ai/fundamentals/ruler}}
+
+@@@ grpo
+title: GRPO
+cats: Concepts, Algorithms
+---
+{{infobox Group Relative Policy Optimization
+Abbreviation: GRPO
+Introduced: DeepSeekMath, 2024
+Key idea: Compare attempts within a group; no critic model
+Variants: [[grpo-variants|DAPO, Dr. GRPO, GSPO]]
+Supported by: Every [[frameworks|framework]] listed here}}
+
+'''Group Relative Policy Optimization''' ('''GRPO''') is the RL algorithm most open labs use for language models. It was introduced in the DeepSeekMath paper<ref>[https://arxiv.org/abs/2402.03300 Shao et al., "DeepSeekMath", 2024]</ref> and made famous by DeepSeek-R1.<ref>[https://arxiv.org/abs/2501.12948 DeepSeek-AI, "DeepSeek-R1", 2025]</ref>
+
+== The idea ==
+{{youtube wEa9CmWPWoU ''GRPO Explained under 40 Minutes'': built up from scratch|Vizuara}}
+
+Give the model the same task several times, score every attempt, and compare each score with the group's average.
+
+{{fig grpo}}
+
+The [[advantage]] of an attempt is its reward minus the group mean, often divided by the group's spread. Attempts with positive advantage have their tokens made more likely. Attempts with negative advantage have theirs made less likely. If all attempts succeed or all fail, every advantage is zero and the task teaches nothing that step.
+
+== Why it became the default ==
+{{youtube bAWV_yrqx4w ''GRPO Explained'': a walkthrough of the DeepSeekMath paper|Yannic Kilcher}}
+
+Older methods (PPO) train a second network, the '''critic''', to predict how good each state is. GRPO replaces the critic with the group average. That removes a whole model from memory and a lot of tuning, which matters on hardware like ours.
+
+== Compared with PPO ==
+{{youtube 8jtAzxUwDj0 ''PPO for LLMs Explained Intuitively''|Julia Turc}}
+
+PPO (Proximal Policy Optimization) is the algorithm GRPO grew out of. PPO estimates how good each step is with a learned '''critic''' model; GRPO swaps the critic for the plain average of the group. Both clip each update so the [[policy]] can't move too far in one step. Watching a PPO explainer first makes GRPO's simplification obvious.
+
+== The knobs ==
+* '''Group size''': attempts per task. 8 is common; more gives a better average but costs more [[rollout|rollouts]].
+* '''Learning rate''': for [[lora|LoRA]], about 10× what full fine-tuning would use.<ref>[https://thinkingmachines.ai/blog/lora/ Schulman et al., "LoRA Without Regret", Thinking Machines, 2025]</ref>
+* '''Clipping''': limits how far one step can move the policy.
+* '''[[kl-penalty|KL penalty]]''': optional brake that keeps the policy near the original.
+
+
+== Videos ==
+{{videos
+K34gBCjzni8 ''DeepSeek R1 Theory Tutorial: Architecture, GRPO, KL Divergence''|freeCodeCamp
+XMnxKGVnEUc The DeepSeek-R1 paper, explained|Umar Jamil
+DCqqCLlsIBU ''DeepSeek-R1 Paper Explained''|AI Papers Academy
+}}
+
+== Further reading ==
+{{paper 2402.03300}}
+
+{{paper 2501.12948}}
+
+{{cards https://cameronrwolfe.substack.com/p/grpo https://huggingface.co/learn/llm-course/chapter12/1}}
+
+== See also ==
+* [[grpo-variants]]
+* [[advantage]]
+* [[reinforcement-learning]]
+
+@@@ advantage
+title: Advantage
+cats: Concepts, Algorithms
+---
+{{youtube HrapVFNBN64 ''Proximal Policy Optimization Explained'': covers advantage and clipping|Edan Meyer}}
+
+The '''advantage''' of an attempt is how much better it did than expected. In [[grpo|GRPO]], "expected" is simply the average reward of its group:
+
+<div class="note">advantage = reward − group mean &nbsp;(often divided by the group's standard deviation)</div>
+
+With 8 attempts and 3 successes, the mean is 0.375. Each success gets +0.625 and each failure −0.375. Training multiplies each attempt's token updates by its advantage, so successes are reinforced and failures discouraged.
+
+Dr. GRPO argues that dividing by the standard deviation adds a bias and drops it.<ref>[https://arxiv.org/abs/2503.20783 Liu et al., "Understanding R1-Zero-Like Training: A Critical Perspective" (Dr. GRPO), 2025]</ref> See [[grpo-variants]].
+
+@@@ grpo-variants
+title: GRPO variants
+cats: Algorithms
+---
+Several fixes to [[grpo|GRPO]] appeared in 2025. All are available as options in the main [[frameworks]], so they are settings to choose rather than separate projects.
+
+<div class="tw"><table class="wt">
+<tr><th>Variant</th><th>What it changes</th><th>Why it matters for us</th></tr>
+<tr><td>DAPO<ref>[https://arxiv.org/abs/2503.14476 Yu et al., "DAPO", 2025]</ref></td><td>Higher clip limit for upward moves, drops groups where all attempts score the same, token-level loss, shaping for overlong answers</td><td>Skipping all-success or all-fail groups saves training compute</td></tr>
+<tr><td>Dr. GRPO<ref>[https://arxiv.org/abs/2503.20783 Liu et al., 2025 (Dr. GRPO)]</ref></td><td>Removes length normalisation and standard-deviation scaling</td><td>Stops the model drifting toward longer and longer answers</td></tr>
+<tr><td>GSPO<ref>[https://arxiv.org/abs/2507.18071 Zheng et al., "Group Sequence Policy Optimization", 2025]</ref></td><td>Computes the update ratio per whole sequence instead of per token</td><td>More stable for mixture-of-experts models such as [[glm-5-3-flash]] and [[qwen3-8-flash-next]]</td></tr>
+</table></div>
+
+Unsloth exposes <code>grpo</code>, <code>dr_grpo</code> and <code>gspo</code> as loss options.<ref>[https://unsloth.ai/docs/get-started/reinforcement-learning-rl-guide Unsloth RL guide]</ref> NeMo-RL lists GRPO, GSPO and DAPO.<ref>[https://github.com/NVIDIA-NeMo/RL NeMo-RL repository]</ref>
+
+== Further reading ==
+{{paper 2503.14476}}
+
+{{paper 2503.20783}}
+
+{{paper 2507.18071}}
+
+@@@ kl-penalty
+title: KL penalty
+cats: Concepts, Algorithms
+---
+{{youtube SxGYPqCgJWM ''Intuitively Understanding the KL Divergence''|Adian Liusie}}
+
+A '''KL penalty''' is an optional term that charges the [[policy]] for drifting away from the original model. KL (Kullback–Leibler divergence) measures how different two models' token probabilities are.
+
+It acts as a brake. With it, the model changes more slowly and keeps more of its original behaviour. Without it, learning is faster but [[forgetting]] and [[reward-hacking]] are more likely. Many recent recipes set it to zero or very low and rely on clipping and a modest number of steps instead.
+
+With [[lora|LoRA]] the reference model is free: it is the same base model with the adapter switched off, so no second copy is needed in memory.
+
+== Videos ==
+{{videos
+LJwtEaP2xKA KL divergence explained through secret codes|Ben Lambert
+tXE23653JrU ''Fantastic KL Divergence and How to (Actually) Compute It'': the estimators RL losses use|Jia-Bin Huang
+}}
+
+@@@ reward-hacking
+title: Reward hacking
+cats: Concepts
+---
+{{youtube nKJlF-olKmg ''9 Examples of Specification Gaming''|Robert Miles AI Safety}}
+
+'''Reward hacking''' is when the model finds a way to earn [[reward]] without doing the task. RL optimises exactly what is measured, so any gap between the measurement and the intent will be found.<ref>[https://lilianweng.github.io/posts/2024-11-28-reward-hacking/ Lilian Weng, "Reward Hacking in Reinforcement Learning", 2024]</ref> Anthropic has reported that learning to hack rewards can also spread into broader misbehaviour.<ref>[https://www.anthropic.com/research/emergent-misalignment-reward-hacking Anthropic, "From shortcuts to sabotage: natural emergent misalignment from reward hacking", 2025]</ref>
+
+== How it could happen with browser tasks ==
+* The model uses <code>run_js</code> to write directly into the storage the [[verifier]] reads, instead of drawing the shapes.
+* It claims "done" with plausible values without opening the pages, and the check only looks at the format.
+* With an [[llm-judge|LLM judge]], it writes confident summaries the judge likes.
+* It closes tabs early to avoid tab-hygiene penalties, at the cost of the task.
+
+== Defences ==
+{{youtube 92qDfT8pENs ''Reward Hacking: Concrete Problems in AI Safety''|Robert Miles AI Safety}}
+
+* Verifiers read state the model cannot touch, and fetch the truth independently.
+* Restrict tools per task. For example, disable <code>run_js</code> on canvas tasks, or check the action log.
+* Read 20 random high-reward attempts by hand after every few dozen steps.
+* Keep a held-out test set the run never trains on.
+
+== Videos ==
+{{videos
+1X1-IRaYY6U ''The RL Fine-Tuning Playbook'': GRPO, rubrics, environments and reward hacking in practice|Cognitive Revolution, with Kyle Corbitt
+}}
+
+== Further reading ==
+{{cards https://lilianweng.github.io/posts/2024-11-28-reward-hacking/ https://www.anthropic.com/research/emergent-misalignment-reward-hacking}}
+
+@@@ pass-at-k
+title: pass@k
+cats: Concepts
+---
+'''pass@1''' is the chance a single attempt succeeds. '''pass@k''' is the chance that at least one of ''k'' attempts succeeds.
+
+The gap between them is what RL feeds on. A model with pass@1 = 25% and pass@8 = 90% clearly ''can'' do the task but is unreliable. RL tends to move pass@1 up toward pass@k. It is much less able to raise pass@k itself, which is why tasks the model never solves teach nothing (see [[reinforcement-learning]]).
+
+The '''baseline''' step in the [[roadmap]] measures both numbers for every candidate model and task before any training.
+
+@@@ on-off-policy
+title: On-policy and off-policy
+cats: Concepts, Algorithms
+---
+'''On-policy''' training uses attempts generated by the current version of the [[policy]]. '''Off-policy''' training uses attempts from an older version.
+
+[[grpo|GRPO]] is designed to be on-policy, but many systems run '''one step off-policy''' on purpose: while the trainer learns from batch ''n'', the rollout workers already generate batch ''n+1'' with the previous adapter. The two halves then overlap instead of waiting for each other, which nearly halves the time per step when they are similar in length. Importance-ratio clipping corrects for the small lag.
+
+This matters for our [[cluster-layout]]. When the [[rtx-pro-6000|PRO 6000s]] generate and the [[dgx-spark|Sparks]] train, running one step off-policy keeps both busy.
+
+@@@ lora
+title: LoRA
+cats: Concepts
+---
+{{infobox Low-Rank Adaptation
+Abbreviation: LoRA
+Trains: Two thin matrices per layer
+Base weights: Frozen, never written
+Adapter size: Typically a few hundred MB
+Rank needed for RL: 1–32 (see below)
+Learning rate: ~10× full fine-tuning}}
+
+{{youtube DhRoTONcyZE ''What is Low-Rank Adaptation (LoRA)'', explained by its inventor|Edward Hu}}
+
+'''LoRA''' (Low-Rank Adaptation) is a way to train a model without changing its weights. Each weight matrix W is frozen, and a small trainable correction is added beside it: the product of two thin matrices, B and A. Only B and A are trained.
+
+{{fig lora}}
+
+== Does it damage the model? ==
+The base weights can't be damaged, because they are never written. The adapter is a separate file. Unload it and you have exactly the original model. With the adapter loaded the model behaves differently, and it ''can'' get worse at things you didn't train. That is [[forgetting]], and you measure it with a general benchmark before and after.
+
+== Why LoRA suits RL especially well ==
+{{card https://thinkingmachines.ai/blog/lora/}}
+
+Thinking Machines' "LoRA Without Regret" study found:<ref>[https://thinkingmachines.ai/blog/lora/ Schulman et al., "LoRA Without Regret", Thinking Machines, 2025]</ref>
+* For RL, LoRA matches full fine-tuning '''even at rank 1'''. Each RL episode carries only a few bits of information (roughly "this worked" or "this didn't"), so a tiny adapter has plenty of capacity.
+* The best learning rate is about '''10×''' the full fine-tuning rate (their fitted factor is 9.8).
+* Put LoRA on '''all layers''', especially the MLP and expert layers. Attention-only LoRA underperforms.
+* LoRA tolerates very large batches less well than full fine-tuning.
+
+== Practical benefits on our hardware ==
+* '''Memory''': the optimizer only tracks the adapter, so a frozen 27B model plus its adapter trains on one [[dgx-spark|Spark]].
+* '''Shipping''': between steps only the adapter crosses the network, megabytes instead of a 55 GB model. This makes the split between [[rtx-pro-6000|PRO 6000s]] and [[dgx-spark|Sparks]] practical. See [[cluster-layout]].
+* '''Serving''': vLLM can serve many adapters on one base model and switch between them per request.
+* '''Free reference model''': switch the adapter off to get the original for the [[kl-penalty]].
+
+
+== Videos ==
+{{videos
+PXWYUTMt-AU LoRA explained visually, with PyTorch code from scratch|Umar Jamil
+Xb34YmbEiOc Ray Summit 2025 keynote: the shift to LLM fine-tuning|Anyscale, with Thinking Machines
+Mmo-B5HD0ac ''Tinker: an API for Fine-Tuning & RL''|AI Makerspace
+}}
+
+== Further reading ==
+{{paper 2106.09685}}
+
+{{cards https://tinker-docs.thinkingmachines.ai/ https://github.com/thinking-machines-lab/tinker-cookbook}}
+
+== See also ==
+* [[forgetting]]
+* [[cluster-layout]]
+
+@@@ forgetting
+title: Forgetting
+cats: Concepts
+---
+'''Forgetting''' (or catastrophic forgetting) is when training on one skill makes a model worse at others. With [[lora|LoRA]] the base model is untouched, so forgetting only applies while the adapter is loaded, and it is fully reversible.
+
+== RL forgets less than SFT ==
+"RL's Razor" (2025) found that online RL forgets less than supervised fine-tuning at the same gain, because RL keeps the model close to its own original distribution.<ref>[https://arxiv.org/abs/2509.04259 Shenfeld et al., "RL's Razor: Why Online Reinforcement Learning Forgets Less", 2025]</ref>
+
+== How we would check ==
+Run a small fixed panel before and after each run. We already have the harnesses:
+* GPQA Diamond (knowledge and reasoning)
+* Terminal-Bench and SWE-bench (coding agents)
+* a held-out set of browser tasks never used in training
+If general scores drop by more than noise, lower the learning rate, train fewer steps, or add a [[kl-penalty]].
+
+== Further reading ==
+{{paper 2509.04259}}
+
+@@@ dgx-spark
+title: DGX Spark
+cats: Hardware
+---
+{{infobox NVIDIA DGX Spark
+Units here: 4
+Chip: GB10 (Grace Blackwell)
+Memory: 128 GB unified per unit (512 GB total)
+Bandwidth: ~273 GB/s per unit
+BF16 compute: ~125 TFLOPS per unit (estimate)
+CPU: ARM (aarch64)
+Network: ConnectX-7
+Role here: [[cluster-layout|Training]], small-model experiments}}
+
+{{youtube FW8bCjhl3zE ''NVIDIA DGX Spark in 12 Minutes''|codebasics}}
+
+The '''DGX Spark''' is NVIDIA's desktop Grace Blackwell machine. We have four, set aside for research.
+
+== Strengths ==
+* '''Lots of memory''': 128 GB each holds a frozen 27–33B model plus [[lora|adapter]], activations and optimizer state.
+* '''Four of them''': four independent small-model experiments can run side by side.
+
+== Weaknesses ==
+* '''Slow memory bandwidth''' (~273 GB/s, about 6.5× less than an RTX PRO 6000). Generating text is limited by bandwidth, so Sparks generate [[rollout|rollouts]] slowly.
+* '''Modest compute''': training a 27B model is several times slower than on the PRO 6000s. See [[run-time]].
+* '''ARM CPU''': some RL frameworks don't ship ARM builds. See [[frameworks]].
+
+== Software support ==
+* Unsloth has an official Spark guide and Dockerfile.<ref>[https://unsloth.ai/docs/blog/fine-tuning-llms-with-nvidia-dgx-spark-and-unsloth Unsloth: fine-tuning on DGX Spark]</ref>
+* NeMo-RL ships a linux/arm64 container.<ref>[https://github.com/NVIDIA-NeMo/RL NeMo-RL repository]</ref>
+* slime merged GB10 (sm_121a, arm64) support.<ref>[https://github.com/THUDM/slime/pull/1835 slime PR #1835]</ref>
+* NVIDIA's Spark playbooks cover fine-tuning and vLLM but have no RL playbook.<ref>[https://build.nvidia.com/spark NVIDIA DGX Spark playbooks]</ref>
+
+The compute figure is derived from NVIDIA's sparse FP4 rating divided by 8, and should be replaced with a measured number. Earlier inference work on these units lives in the <code>dsv41-spark-decode</code> track.
+
+== Videos ==
+{{videos
+UaGFUtqravQ ''Introducing NVIDIA DGX Spark'' (GTC 2025)|NVIDIA Developer
+Pf6jCMywpBY ''DGX Spark Live: Scaling On-Device VLM Fine-Tuning''|NVIDIA Developer
+}}
+
+== Further reading ==
+{{cards https://build.nvidia.com/spark https://unsloth.ai/docs/blog/fine-tuning-llms-with-nvidia-dgx-spark-and-unsloth}}
+
+@@@ rtx-pro-6000
+title: RTX PRO 6000
+cats: Hardware
+---
+{{infobox RTX PRO 6000 Blackwell
+Units here: 4, in host pop-os
+Memory: 96 GB GDDR7 per card (384 GB total)
+Bandwidth: ~1.8 TB/s per card
+BF16 compute: ~500 TFLOPS per card (estimate)
+Now serving: [[deepseek-v4-1-flash|DeepSeek-V4.1-Flash-1017]] (container local-studio-llm)
+Role here: [[rollout|Rollouts]] or [[llm-judge|judge]]}}
+
+The four '''RTX PRO 6000''' cards in '''pop-os''' are the fast machines. Today they serve DeepSeek-V4.1-Flash-1017 for daily inference.
+
+== Why they matter for RL ==
+Generating text is limited by memory bandwidth. At ~1.8 TB/s per card, they generate [[rollout|rollouts]] roughly 6× faster than a [[dgx-spark|Spark]]. They also train about 4× faster.
+
+== The open question ==
+Can they be lent to RL runs? There are three options:
+* '''Keep DeepSeek serving''' and use it as the [[llm-judge]]. The Sparks then do all generation and training.
+* '''Nights and weekends''': evict DeepSeek during runs.
+* '''Dedicated''': fastest runs, but no DeepSeek.
+This is question 4 on the [[questions]] page. The [[run-time]] estimator shows each case.
+
+Operational note: after any reboot, check that local-studio-llm was not auto-restarted during a tuning campaign.
+
+@@@ cluster-layout
+title: Cluster layout
+cats: Hardware, Project
+---
+'''Cluster layout''' is the choice of which machines generate [[rollout|rollouts]], which ones train, and which one judges.
+
+{{fig hw}}
+
+== The four layouts ==
+<div class="tw"><table class="wt">
+<tr><th>Layout</th><th>Generates</th><th>Trains</th><th>DeepSeek stays up?</th><th>Good for</th></tr>
+<tr><td>1 Spark</td><td>Spark</td><td>Same Spark</td><td class="ok">Yes</td><td>Small models; 4 experiments in parallel</td></tr>
+<tr><td>4 Sparks</td><td>4 Sparks</td><td>Same 4 Sparks</td><td class="ok">Yes (as judge)</td><td>Mid-size models without touching pop-os</td></tr>
+<tr><td>PRO 6000s → Sparks</td><td>4 PRO 6000s</td><td>4 Sparks</td><td class="no">No, during runs</td><td>27–33B models</td></tr>
+<tr><td>4 PRO 6000s</td><td>4 PRO 6000s</td><td>Same cards</td><td class="no">No</td><td>Fastest runs</td></tr>
+</table></div>
+
+== Why the split works ==
+{{youtube 5ZlavKF_98U ''Fast LLM Serving with vLLM and PagedAttention'', by the vLLM authors|Anyscale}}
+
+Generation needs bandwidth, which the PRO 6000s have. Training needs memory capacity and compute, and the Sparks have the capacity. [[lora|LoRA]] makes the split cheap: each step, only the adapter (megabytes) is sent from the trainer to the generator, never the base model. Running [[on-off-policy|one step off-policy]] lets both sides work at the same time.
+
+== Browsers ==
+Each attempt needs a headless Chromium with Sitegeist and local test pages. Roughly 16–32 browsers per machine is a reasonable first guess, limited by CPU and RAM, and worth measuring early.
+
+== Videos ==
+{{videos
+m0JnK3b-Am4 ''KV-Cache & PagedAttention: How vLLM Cuts LLM Serving Costs''|Eugen Soloviov
+}}
+
+@@@ run-time
+title: Run-time estimator
+cats: Hardware, Project
+---
+The '''run-time estimator''' predicts how long one RL run takes on our machines. Every number here is an '''estimate from first principles, not a measurement'''. The first week of real work replaces the inputs with measured ones. Change any input and the numbers update.
+
+{{calc}}
+
+== Every model on every layout ==
+Total wall-clock for the whole run with the settings above. '''Green''': practical now. '''Amber''': fits on paper, but LoRA-RL for mixture-of-experts models isn't merged in the frameworks yet<ref>[https://github.com/verl-project/verl/pull/7483 verl PR #7483 (MoE LoRA for DeepSeek-V4.1 and GLM-5.3-Flash), open as of 1 Nov 2026]</ref>. '''Grey''': doesn't fit in memory.
+
+{{matrix}}
+
+== How it is computed ==
+* '''Generation''': each replica produces min(bandwidth ÷ active-weight bytes × concurrent attempts, 25% of peak compute ÷ 2 × active params) tokens per second, times a 0.6 real-world factor. MoE models are charged double weight reads, because a batch touches many experts. Each turn adds the browser's seconds per action.
+* '''Training''': tokens per step × 6 × active parameters ÷ (devices × peak × efficiency). Efficiency is 35% for dense models and 15% for MoE. The factor 6 covers the forward pass, the backward pass with frozen weights, and a reference pass.
+* '''Fit''': generation needs the weights in 75% of the generating machines' memory. Training needs 1.2 × weights + 24 GB within 90% of the trainers' memory.
+* '''Step''': on shared machines, generation + training + 30 s of swapping. On split machines, the longer of the two + 10 s of adapter sync.
+* '''Hardware''': Spark 128 GB, 273 GB/s, ~125 TFLOPS. PRO 6000: 96 GB, 1.8 TB/s, ~500 TFLOPS. See [[dgx-spark]] and [[rtx-pro-6000]].
+
+== The two levers ==
+* '''Context per attempt''': most tokens are page text. Halving it roughly halves training time, so trim the accessibility tree hard.
+* '''Active parameters''': training cost scales with them. A 4B model is about 7× cheaper per step than a 27B one.
+
+@@@ model-comparison
+title: Model comparison
+cats: Models
+---
+{{youtube 0QQlYR1r6pQ ''Mixture of Experts (MoE), Visually Explained''|Jia-Bin Huang}}
+
+This table compares the models under consideration. Facts are from the Hugging Face model cards, checked 1 November 2026. '''Active''' is the number of parameters used per token. For mixture-of-experts (MoE) models it is much smaller than the total, so they run fast, but the whole model still has to sit in memory to train.
+
+<div class="tw"><table class="wt">
+<tr><th>Model</th><th>Total / active</th><th>Type</th><th>Context</th><th>License</th><th>Role here</th></tr>
+<tr><td>[[lfm3|LFM3-1.7B]]</td><td class="num">1.7B</td><td>Dense, conv + attention hybrid</td><td class="num">256K</td><td>LFM Open v1.0</td><td class="ok">First experiments</td></tr>
+<tr><td>[[qwen3-5-small|Qwen3.5 0.8–9B]]</td><td class="num">≤9B</td><td>Dense, DeltaNet hybrid, vision</td><td class="num">262K</td><td>Apache-2.0</td><td class="ok">First experiments</td></tr>
+<tr><td>[[qwen3-8-27b|Qwen3.8-27B]]</td><td class="num">27.8B</td><td>Dense, DeltaNet hybrid, vision</td><td class="num">262K</td><td>Apache-2.0</td><td class="ok">Main target</td></tr>
+<tr><td>[[nanbeige4-3-33b|Nanbeige4.3-33B]]</td><td class="num">33.1B</td><td>Dense, Llama-style</td><td class="num">512K</td><td>Apache-2.0</td><td class="ok">Main target</td></tr>
+<tr><td>[[qwen3-8-flash-next|Qwen3.8-Flash-Next]]</td><td class="num">125B (+51B) / 6B</td><td>MoE, 512 experts</td><td class="num">262K</td><td>qwen-community-1.0</td><td class="mid">Later</td></tr>
+<tr><td>[[glm-5-3-flash|GLM-5.3-Flash]]</td><td class="num">320B / 18B</td><td>MoE, 288 experts</td><td class="num">1M</td><td>MIT</td><td class="mid">Later</td></tr>
+<tr><td>[[deepseek-v4-1-flash|DeepSeek-V4.1-Flash-1017]]</td><td class="num">552B (+196B) / 8–16B</td><td>MoE, 384 experts</td><td class="num">1M</td><td>MIT</td><td class="no">Judge / teacher only</td></tr>
+</table></div>
+
+See [[run-time]] for how long each takes to train on each [[cluster-layout|layout]].
+
+== Videos ==
+{{videos
+mwO6v4BlgZQ ''Mixtral of Experts'' (paper explained)|Yannic Kilcher
+UiX8K-xBUpE Sparse mixture-of-experts layers built step by step|Umar Jamil
+}}
+
+@@@ lfm3
+title: LFM3
+cats: Models
+---
+{{infobox LFM3
+Developer: Liquid AI
+Members: LFM3-1.7B (+ Base), LFM3-VL-2B, LFM3-Audio-2B, LFM3-Omni-2B, d1-2B, d1-Omni-2B
+Architecture: 24 layers: 13 short-convolution, 5 sliding-window attention, 6 global attention
+Context: 256K
+License: LFM Open License v1.0
+Role here: First experiments}}
+
+'''LFM3''' is Liquid AI's 2026 family of small models.<ref>[https://huggingface.co/collections/LiquidAI/lfm3-6adc03dcfe62bfd2fcd8eea7 LiquidAI LFM3 collection on Hugging Face]</ref><ref>[https://www.liquid.ai/blog/lfm3 Liquid AI blog: LFM3]</ref> The text model, LFM3-1.7B, is post-trained for agent harnesses, which makes it a plausible starting point for tool-calling RL despite its size.
+
+== Members ==
+* [https://huggingface.co/LiquidAI/LFM3-1.7B LFM3-1.7B] and [https://huggingface.co/LiquidAI/LFM3-1.7B-Base LFM3-1.7B-Base]: 1.73B, text
+* [https://huggingface.co/LiquidAI/LFM3-VL-2B LFM3-VL-2B]: 1.92B, vision-language. Could browse from screenshots instead of page text.
+* LFM3-Audio-2B (2.0B) and LFM3-Omni-2B (2.17B)
+* [https://huggingface.co/LiquidAI/d1-2B d1-2B] and d1-Omni-2B: "decision" models built on LFM3-VL
+* Related: [https://huggingface.co/LiquidAI/LFM2.5-24B-A2B LFM2.5-24B-A2B], a 24B MoE with 2B active (12 Oct 2026)
+
+== In this project ==
+The cheapest real experiment. With default [[run-time]] settings, a 150-step run is about 40 hours on one [[dgx-spark|Spark]], or about 17 hours on all four. Its convolution layers are less common than plain attention, so check framework support in a small test first.
+
+== Further reading ==
+{{card https://www.liquid.ai/blog/lfm3}}
+
+@@@ qwen3-5-small
+title: Qwen3.5 small models
+cats: Models
+---
+{{infobox Qwen3.5 (small sizes)
+Developer: Alibaba Qwen
+Sizes: 0.8B, 2B, 4B, 9B (each with a -Base)
+Architecture: Gated DeltaNet hybrid, vision-language
+Context: 262K
+License: Apache-2.0
+Role here: First experiments}}
+
+The '''Qwen3.5''' small models are the current sub-10B Qwen line. There are no sub-10B Qwen3.6 or Qwen3.8 models.<ref>[https://huggingface.co/Qwen/Qwen3.5-4B Qwen3.5-4B model card]</ref>
+
+== In this project ==
+* TRL's BrowserGym GRPO example uses '''Qwen3.5-2B''' by default, the shortest path to a working browser RL run.<ref>[https://github.com/huggingface/trl/tree/main/examples/grpo_browsergym TRL grpo_browsergym example]</ref>
+* '''Qwen3.5-4B''' is a good first real target: a 150-step run is about 3.7 days on one [[dgx-spark|Spark]] or about 35 hours on four (estimates, see [[run-time]]).
+* Unsloth's guide says Qwen3.5-architecture models need <code>fast_inference=False</code>, which makes rollouts slower in Unsloth.<ref>[https://unsloth.ai/docs/get-started/reinforcement-learning-rl-guide Unsloth RL guide]</ref>
+* The same architecture as [[qwen3-8-27b|Qwen3.8-27B]], so what works at 4B should carry over.
+
+== Further reading ==
+{{card https://huggingface.co/Qwen/Qwen3.5-4B}}
+
+@@@ qwen3-8-27b
+title: Qwen3.8-27B
+cats: Models
+---
+{{infobox Qwen3.8-27B
+Developer: Alibaba Qwen
+Released: 5 August 2026
+Parameters: 27.8B dense (incl. vision encoder)
+Layers: 64 = 16 × (3 Gated DeltaNet + 1 gated full attention)
+Hidden size: 5120
+Context: 262K (extensible to 1M)
+Extras: Multi-token prediction, native vision
+License: Apache-2.0
+Base model: Not published
+Role here: Main target}}
+
+'''Qwen3.8-27B''' is a dense 27.8B vision-language model with a hybrid linear/full attention design.<ref>[https://huggingface.co/Qwen/Qwen3.8-27B Qwen3.8-27B model card]</ref> It ships as one post-trained checkpoint with thinking on by default; thinking can be turned off per request. No Base checkpoint is published.
+
+== Browser ability today ==
+The card reports '''64.8 on WebArena-Verified''', against 48.8 for Qwen3.6-27B. That starting point is strong. General web gains from RL will be smaller than for a 4B model. The gains on our own tool interface and tasks are still unmeasured, and they are what the [[roadmap]] targets.
+
+== In this project ==
+* Fits a single [[dgx-spark|Spark]] for training in BF16 (~56 GB of weights).
+* Estimated 150-step run: ~5 days with [[rtx-pro-6000|PRO 6000s]] generating and Sparks training, ~2 days on the PRO 6000s alone, ~9.5 days on Sparks alone. See [[run-time]].
+* OpenPipe ART's notebooks use this model, so [[openpipe-art|ART]] is a well-trodden path.<ref>[https://github.com/OpenPipe/ART OpenPipe ART repository]</ref>
+* Thinking on means long outputs. Train with thinking off, or a low budget, to keep [[rollout|rollouts]] short.
+
+== Further reading ==
+{{card https://huggingface.co/Qwen/Qwen3.8-27B}}
+
+@@@ nanbeige4-3-33b
+title: Nanbeige4.3-33B
+cats: Models
+---
+{{note This is our best guess for "Nanpage 33B" from the voice note. Please confirm on the [[questions]] page.}}
+
+{{infobox Nanbeige4.3-33B
+Developer: Nanbeige
+Released: 24 October 2026
+Parameters: 33.1B dense
+Architecture: Llama-style, 52 layers, hidden 7168, GQA 56/8
+Context: 512K
+Variants: Base and post-trained; FP8, INT8, INT4 (31 Oct)
+License: Apache-2.0
+Role here: Main target}}
+
+'''Nanbeige4.3-33B''' is a dense 33B model in the plain Llama architecture.<ref>[https://huggingface.co/Nanbeige/Nanbeige4.3-33B Nanbeige4.3-33B model card]</ref> The post-trained model has a thinking toggle and a <code>preserve_thinking</code> option for multi-turn tool use. The card positions it as an agentic "teacher" model and claims it beats [[qwen3-8-27b|Qwen3.8-27B]] on most agentic benchmarks. That is the developer's claim, and our baseline would check it.
+
+== Why it is attractive here ==
+* '''Plain architecture''': every RL [[frameworks|framework]] supports Llama-style models, with none of the hybrid-attention edge cases.
+* '''A Base checkpoint exists''' ([https://huggingface.co/Nanbeige/Nanbeige4.3-33B-Base Nanbeige4.3-33B-Base]), useful for comparison experiments.
+* '''Apache-2.0'''.
+
+== In this project ==
+Estimated 150-step run: ~6 days with [[rtx-pro-6000|PRO 6000s]] generating and [[dgx-spark|Sparks]] training, or ~2.4 days on the PRO 6000s alone. See [[run-time]].
+
+== Further reading ==
+{{card https://huggingface.co/Nanbeige/Nanbeige4.3-33B}}
+
+@@@ qwen3-8-flash-next
+title: Qwen3.8-Flash-Next
+cats: Models
+---
+{{infobox Qwen3.8-Flash-Next
+Developer: Alibaba Qwen
+Released: 24 August 2026
+Parameters: 125B MoE, 6B active (+51B n-gram embeddings, +4B MTP; ~180B in the repo)
+Layers: 48 = 12 × (3 Gated DeltaNet + 1 Qwen Sparse Attention)
+Experts: 512; 10 routed + 1 shared active
+Context: 262K (extensible to 1M)
+License: qwen-community-1.0 (not Apache)
+Role here: Later}}
+
+'''Qwen3.8-Flash-Next''' is a sparse mixture-of-experts model that the card describes as a preview of the Qwen4 architecture.<ref>[https://huggingface.co/Qwen/Qwen3.8-Flash-Next Qwen3.8-Flash-Next model card]</ref><ref>[https://qwen.ai/blog?id=qwen3.8-flash-next Qwen blog: Qwen3.8-Flash-Next]</ref> With only 6B active parameters it is very fast at inference, and it already drives some of our [[sitegeist-usage|Sitegeist sessions]].
+
+== Why not yet ==
+* All ~180B parameters must sit in memory to train, even though only 6B are active per token.
+* LoRA on expert layers, which [[lora|LoRA Without Regret]] says matters, isn't mature in the [[frameworks]].
+* The architecture is new, so framework support lags.
+* The license is not Apache. Check its terms before publishing an adapter.
+
+On paper, the [[run-time]] estimator fits it on 4 Sparks in BF16 (~3.3 days), or on the PRO 6000s with an FP8 frozen base (~20 hours). Treat both as placeholders until the tooling exists.
+
+== Further reading ==
+{{card https://huggingface.co/Qwen/Qwen3.8-Flash-Next}}
+
+@@@ glm-5-3-flash
+title: GLM-5.3-Flash
+cats: Models
+---
+{{infobox GLM-5.3-Flash
+Developer: Z.ai (zai-org)
+Released: 25 August 2026
+Parameters: 320B MoE, 18B active
+Layers: 45, hidden 4096
+Experts: 288 routed + 1 shared, top-8
+Attention: Linear (KDA) and sparse MLA, 3:1
+Context: 1M positions
+Checkpoints: FP8 and BF16
+License: MIT
+Role here: Later}}
+
+'''GLM-5.3-Flash''' is a large, natively multimodal mixture-of-experts model with selectable thinking effort.<ref>[https://huggingface.co/zai-org/GLM-5.3-Flash GLM-5.3-Flash model card] and [https://huggingface.co/zai-org/GLM-5.3-Flash/raw/main/config.json config.json]</ref><ref>[https://z.ai/blog/glm-5.3-flash Z.ai blog: GLM-5.3-Flash]</ref> It already drives about 6,000 of our [[sitegeist-usage|Sitegeist tool calls]], so we know it can do the work. The question is whether RL can make it more reliable.
+
+== Why not yet ==
+* 320B parameters: BF16 (640 GB) doesn't fit anywhere we have. An FP8 frozen base (320 GB) fits on paper across 4 [[dgx-spark|Sparks]], at ~8.7 days per run. See [[run-time]].
+* MoE LoRA for GLM-5.3-Flash is an '''open pull request''' in verl that depends on further unmerged vLLM and Megatron changes.<ref>[https://github.com/verl-project/verl/pull/7483 verl PR #7483]</ref>
+* GSPO is the recommended loss for MoE stability. See [[grpo-variants]].
+
+Local note: an MLX 4-bit conversion is recorded at 177.6 GB (from our fleet notes, not verified independently).
+
+== Further reading ==
+{{card https://huggingface.co/zai-org/GLM-5.3-Flash}}
+
+@@@ deepseek-v4-1-flash
+title: DeepSeek-V4.1-Flash-1017
+cats: Models
+---
+{{infobox DeepSeek-V4.1-Flash-1017
+Developer: DeepSeek
+Released: 17 October 2026 (update to V4.1-Flash of 10 September)
+Parameters: 552B MoE backbone + 196B Engram memory
+Active: Listed as "8B / 16B" (meaning unclear on the card)
+Layers: 40, causal encoder-decoder
+Experts: 384, top-6
+Attention: CSA2 sparse
+Context: 1M
+License: MIT
+Role here: [[llm-judge|Judge]] and teacher}}
+
+'''DeepSeek-V4.1-Flash-1017''' is the model now serving on the [[rtx-pro-6000|RTX PRO 6000s]].<ref>[https://huggingface.co/deepseek-ai/DeepSeek-V4.1-Flash-1017 DeepSeek-V4.1-Flash-1017 model card]</ref> The card ships no Jinja chat template; prompts must be built with its <code>encoding.py</code>.
+
+== Why it isn't a training target ==
+At roughly 750B parameters in total, it doesn't fit in our combined memory for training, even with an FP8 base.
+
+== How it helps anyway ==
+{{youtube 0VLAoVGf_74 ''How DeepSeek Rewrote the Transformer'': the MLA attention behind DeepSeek's models|Welch Labs}}
+
+* '''Judge''': grade or rank attempts that code can't check. See [[llm-judge]].
+* '''Teacher''': it already drives about 9,500 of our [[sitegeist-usage|Sitegeist calls]]. Its successful trajectories on our tasks could give a small model a short SFT warm start when the small model never succeeds on its own. See [[roadmap]].
+* '''Task writer''': generate variations of [[browser-agent-bench]] tasks.
+
+== Further reading ==
+{{card https://huggingface.co/deepseek-ai/DeepSeek-V4.1-Flash-1017}}
+
+@@@ frameworks
+title: Training frameworks
+cats: Frameworks
+---
+'''Training frameworks''' are the software that runs the RL loop: generating [[rollout|rollouts]] (usually through vLLM or SGLang), computing [[reward|rewards]], and updating the [[lora|LoRA adapter]]. The facts below are from each project's README and issue tracker as of 1 November 2026.
+
+<div class="tw"><table class="wt">
+<tr><th>Framework</th><th>LoRA RL</th><th>Multi-turn agents</th><th>DGX Spark</th><th>For a beginner</th></tr>
+<tr><td>[[unsloth|Unsloth]]</td><td class="ok">Yes</td><td class="mid">Not in guide</td><td class="ok">Official guide</td><td>Best first toy run</td></tr>
+<tr><td>[[trl|TRL]]</td><td class="ok">Yes</td><td class="ok">Yes, BrowserGym example</td><td class="mid">Unverified</td><td><b>Recommended main tool</b></td></tr>
+<tr><td>[[openpipe-art|OpenPipe ART]]</td><td class="ok">LoRA only</td><td class="ok">Yes, RULER judge</td><td class="mid">Unverified</td><td>Good for fuzzy rewards</td></tr>
+<tr><td>[[skyrl|SkyRL]]</td><td class="ok">Yes</td><td class="ok">Yes</td><td class="mid">Unverified</td><td>Runs Tinker recipes at home</td></tr>
+<tr><td>[[prime-rl|prime-rl]]</td><td class="ok">Yes</td><td class="ok">Yes</td><td class="no">Not found</td><td>Intermediate</td></tr>
+<tr><td>[[verl|verl]]</td><td class="ok">Yes (MoE in PR)</td><td class="ok">Yes</td><td class="mid">Unverified</td><td>Intermediate; MoE path</td></tr>
+<tr><td>[[nemo-rl|NeMo-RL]]</td><td class="ok">Yes, incl. MoE</td><td class="ok">Yes</td><td class="ok">arm64 container</td><td>Heavy setup</td></tr>
+<tr><td>[[slime|slime]]</td><td class="mid">Not documented</td><td class="ok">Yes</td><td class="ok">GB10 merged</td><td>Expert</td></tr>
+</table></div>
+
+== How to choose ==
+{{youtube OkEGJ5G3foU Workshop on RL, kernels, reasoning, quantization and agents|AI Engineer, Daniel Han of Unsloth}}
+
+# '''Learning''': [[unsloth|Unsloth]] on one Spark, with its GRPO tutorial.
+# '''Browser RL with code-checked rewards''': [[trl|TRL]] with an environment wrapping [[browser-agent-bench]].
+# '''Rewards that need a judge''': [[openpipe-art|ART]] with RULER and DeepSeek as the judge.
+# '''Mixture-of-experts later''': [[verl|verl]] or [[nemo-rl|NeMo-RL]], once MoE LoRA lands.
+
+Newer 2026 projects to watch: vime (vLLM's fork of slime)<ref>[https://github.com/vllm-project/vime vime repository]</ref>, OpenForgeRL<ref>[https://arxiv.org/abs/2607.21557 OpenForgeRL paper]</ref> and the ARLArena / SAMPO stable agentic RL recipe<ref>[https://arxiv.org/abs/2602.21534 ARLArena / SAMPO paper]</ref>.
+
+== Further reading ==
+{{cards https://github.com/huggingface/trl https://github.com/unslothai/unsloth https://github.com/OpenPipe/ART https://github.com/NovaSky-AI/SkyRL}}
+
+@@@ trl
+title: TRL
+cats: Frameworks
+---
+{{infobox TRL
+Maintainer: Hugging Face
+Version: 1.17.1
+LoRA RL: Yes, through PEFT
+Multi-turn: <code>GRPOTrainer(environment_factory=…)</code>
+Rollouts: vLLM, colocated or server mode
+DGX Spark: Unverified
+Verdict: Recommended main tool}}
+
+'''TRL''' is Hugging Face's post-training library.<ref>[https://github.com/huggingface/trl TRL repository]</ref> Its <code>GRPOTrainer</code> accepts an environment class and turns that class's methods into tools the model can call, which is the shape of a browser agent.
+
+== Why it is the main pick ==
+{{youtube 4uLEMtAdQCM Fine-tuning with SFT, PPO and GRPO using TRL|Ricardo Calix}}
+
+* It ships a '''BrowserGym GRPO example''' (MiniWoB and WebArena through OpenEnv), with an accessibility-tree text variant and a screenshot variant.<ref>[https://github.com/huggingface/trl/tree/main/examples/grpo_browsergym TRL grpo_browsergym example]</ref>
+* The docs and courses are beginner-level. See [[learning-path]].
+* vLLM '''server mode''' can run the generator on one machine (the [[rtx-pro-6000|PRO 6000s]]) and the trainer on another (the [[dgx-spark|Sparks]]).
+
+== Watch out for ==
+* Spark support is only mentioned in a user issue.<ref>[https://github.com/huggingface/trl/issues/6294 TRL issue #6294]</ref> Test on one Spark first.
+* The async trainer is still experimental.
+
+== Further reading ==
+{{cards https://github.com/huggingface/trl/tree/main/examples/grpo_browsergym https://huggingface.co/docs/trl/en/openenv}}
+
+@@@ unsloth
+title: Unsloth
+cats: Frameworks
+---
+{{infobox Unsloth
+LoRA RL: Yes (GRPO, Dr. GRPO, GSPO)
+Multi-turn: Not covered in the RL guide
+Rollouts: vLLM fast_inference
+DGX Spark: Official guide and Dockerfile
+Verdict: Best first run}}
+
+'''Unsloth''' is a fast, memory-efficient fine-tuning library with a GRPO path for LoRA and QLoRA.<ref>[https://github.com/unslothai/unsloth Unsloth repository]</ref><ref>[https://unsloth.ai/docs/get-started/reinforcement-learning-rl-guide Unsloth RL guide]</ref> It is the easiest way to watch a reward curve go up on a [[dgx-spark|Spark]] in an evening.
+
+== Notes ==
+{{youtube SoPE1cUz3Hs ''Train a DeepSeek-Style Reasoning Model with Unsloth'' (local tutorial)|Bijan Bowen}}
+
+* Official Spark guide and Dockerfile.<ref>[https://unsloth.ai/docs/blog/fine-tuning-llms-with-nvidia-dgx-spark-and-unsloth Unsloth: DGX Spark guide]</ref> A two-Spark pull request is open.<ref>[https://github.com/unslothai/unsloth/pull/10280 Unsloth PR #10280]</ref>
+* Qwen3.5-architecture models need <code>fast_inference=False</code>, which slows rollouts.
+* Its RL guide doesn't cover multi-turn agents, so move to [[trl|TRL]] for browser work.
+
+== Further reading ==
+{{cards https://unsloth.ai/docs/get-started/reinforcement-learning-rl-guide https://unsloth.ai/docs/blog/fine-tuning-llms-with-nvidia-dgx-spark-and-unsloth}}
+
+@@@ openpipe-art
+title: OpenPipe ART
+cats: Frameworks
+---
+{{youtube yYZBd25rl4Q ''Why RL Won'': RULER, relative rewards and agents that keep learning|Latent Space, with Kyle Corbitt}}
+
+{{infobox OpenPipe ART
+Version: 0.5.23
+LoRA RL: LoRA only, served from vLLM
+Multi-turn: Yes, agent-first
+Judge: RULER
+DGX Spark: Unverified}}
+
+'''ART''' (Agent Reinforcement Trainer) is built specifically for multi-turn agents.<ref>[https://github.com/OpenPipe/ART OpenPipe ART repository]</ref> Its notebooks use [[qwen3-8-27b|Qwen3.8-27B]].
+
+Its '''RULER''' component is an [[llm-judge|LLM judge]] that ranks groups of attempts, so you can start RL without writing a code [[verifier]].<ref>[https://art.openpipe.ai/fundamentals/ruler RULER documentation]</ref> With [[deepseek-v4-1-flash|DeepSeek-V4.1-Flash]] as the judge, this is the natural path for fuzzy tasks such as inbox triage summaries.
+
+== Videos ==
+{{videos
+gEDl9C8s_-4 ''How to Train Your Agent''|AI Engineer, Kyle Corbitt
+X6R4loxcn0k ''Training Agents with RL''|OpenPipe
+}}
+
+== Further reading ==
+{{cards https://github.com/OpenPipe/ART https://art.openpipe.ai/fundamentals/ruler}}
+
+@@@ skyrl
+title: SkyRL
+cats: Frameworks
+---
+{{stub}}
+
+'''SkyRL''' (NovaSky, v0.4.0) provides skyrl-gym tool environments and skyrl-agent for multi-turn RL.<ref>[https://github.com/NovaSky-AI/SkyRL SkyRL repository]</ref> It notably '''implements the Tinker API on your own GPUs'''<ref>[https://docs.skyrl.ai/docs/tinker/overview SkyRL Tinker backend docs]</ref>, so the clean LoRA-RL recipes in Thinking Machines' tinker-cookbook can run at home instead of on their hosted service.<ref>[https://github.com/thinking-machines-lab/tinker-cookbook tinker-cookbook]</ref> It has been used for LoRA RL on a 501B MoE. Spark support is unverified.
+
+== Videos ==
+{{videos
+Mmo-B5HD0ac ''Tinker: an API for Fine-Tuning & RL''|AI Makerspace
+}}
+
+== Further reading ==
+{{cards https://docs.skyrl.ai/docs/tinker/overview https://github.com/thinking-machines-lab/tinker-cookbook}}
+
+@@@ prime-rl
+title: prime-rl
+cats: Frameworks
+---
+{{stub}}
+
+'''prime-rl''' (Prime Intellect, v0.10.0) is an asynchronous RL trainer: FSDP2 for training, vLLM for rollouts, expert parallelism for MoE, and LoRA through a <code>[model.lora]</code> config block.<ref>[https://github.com/PrimeIntellect-ai/prime-rl prime-rl repository] and [https://github.com/PrimeIntellect-ai/prime-rl/blob/main/docs/advanced.md advanced docs]</ref> Environments are written with the companion '''verifiers''' library.<ref>[https://github.com/PrimeIntellect-ai/verifiers verifiers repository]</ref> We found no evidence of Spark support.
+
+@@@ verl
+title: verl
+cats: Frameworks
+---
+{{stub}}
+
+'''verl''' (v0.9.1, moved from volcengine to verl-project) is a mature RL framework with LoRA, multi-turn agent loops, and vLLM or SGLang rollouts.<ref>[https://github.com/verl-project/verl verl repository]</ref> It is the most likely path to RL on [[glm-5-3-flash|GLM-5.3-Flash]] and [[deepseek-v4-1-flash|DeepSeek-V4.1]]: MoE LoRA for both is an open pull request that depends on unmerged vLLM and Megatron changes.<ref>[https://github.com/verl-project/verl/pull/7483 verl PR #7483]</ref>
+
+@@@ nemo-rl
+title: NeMo-RL
+cats: Frameworks
+---
+{{stub}}
+
+'''NeMo-RL''' (NVIDIA, v0.7.0) supports LoRA GRPO, including MoE recipes (Nano v3 30B-A3B), multi-turn environments, and the GRPO, GSPO and DAPO losses.<ref>[https://github.com/NVIDIA-NeMo/RL NeMo-RL repository]</ref> It ships a '''linux/arm64 NGC container''', which makes it one of the few RL stacks with a clear [[dgx-spark|Spark]] story. The trade-off is a heavy setup.
+
+@@@ slime
+title: slime
+cats: Frameworks
+---
+{{stub}}
+
+'''slime''' (THUDM, v0.4.0) pairs Megatron for training with SGLang for rollouts and includes agentic examples.<ref>[https://github.com/THUDM/slime slime repository]</ref> It merged GB10 (sm_121a, arm64) support for the [[dgx-spark|DGX Spark]].<ref>[https://github.com/THUDM/slime/pull/1835 slime PR #1835]</ref> Its README doesn't document LoRA, and it is aimed at experts.
+
+@@@ sitegeist-usage
+title: Sitegeist usage
+cats: Project
+---
+'''Sitegeist usage''' summarises how our coding agents used the Sitegeist browser tools from 17 September to 1 November 2026. The counts come from Claude Code, Codex CLI, OMP and Pi session transcripts on the Mac, and include only sessions that actually called Sitegeist tools.
+
+== Volume ==
+<div class="tw"><table class="wt">
+<tr><th>Harness</th><th>Sessions</th><th>Tool calls</th><th>Median calls / session</th><th>p90</th></tr>
+<tr><td>OMP</td><td class="num">202</td><td class="num">21,903</td><td class="num">54</td><td class="num">211</td></tr>
+<tr><td>Claude Code</td><td class="num">110</td><td class="num">5,951</td><td class="num">8</td><td class="num">138</td></tr>
+<tr><td>Codex CLI</td><td class="num">15</td><td class="num">2,663</td><td class="num">98</td><td class="num">359</td></tr>
+<tr><td>Pi</td><td class="num">1</td><td class="num">3</td><td class="num">–</td><td class="num">–</td></tr>
+<tr><th>Total</th><th class="num">328</th><th class="num">~30,520</th><th></th><th></th></tr>
+</table></div>
+
+== Who drove the browser ==
+About half of all calls came from open models we could train or replace: [[deepseek-v4-1-flash|DeepSeek-V4.1-Flash]] (~9.5k including the 1017 update), [[glm-5-3-flash|GLM-5.3-Flash]] (~6k) and [[qwen3-8-flash-next|Qwen3.8-Flash-Next]] (~0.8k). Claude Opus 5.5 (~7.2k), Claude Sonnet 5.5 (~2.7k) and GPT-6.1 (~2.9k) made up most of the rest.
+
+== What the tasks were ==
+* Email and inbox triage: ~31% of sessions, the heaviest by calls
+* Batch profile enrichment across X and LinkedIn: ~20%
+* Signed-in portals and forms (government and booking portals): ~5% explicit, more inside the email sessions
+* Local app previews and screenshots: ~5%
+* Dev portals (GitHub, Hugging Face, Vercel, Cloudflare): ~5%
+* Docs, Notion and Slides: ~4%; YouTube and media: ~4%; canvas drawing: ~1%; shopping: ~1%
+
+== Tools used ==
+<code>run_js</code> 38.5%, <code>navigate</code> 17%, <code>wait</code> 8%, <code>click</code> 7%, <code>screenshot</code> 5.5%, <code>read_page</code> 5%, <code>get_page_text</code> 4%, <code>find</code> 3%. Agents script the page through JavaScript much more than they click, which matters for [[reward-hacking]] defences.
+
+== Failures ==
+2,303 tool calls errored, and 273 of the 328 sessions had at least one error.
+* Timeouts: 61%, mostly long <code>run_js</code> and <code>navigate</code> waits on heavy single-page apps
+* JavaScript errors: 13%
+* Navigation or load failures: 10%
+* Stale or missing element references: 4%
+* Tab or group problems: 2%
+* Permission or site denied: under 1%
+Login walls and captchas were handed to the user rather than logged as errors.
+
+== What this means for RL ==
+See [[browser-skills]] for which of these to train, and [[environment]] for why training runs against local fixtures rather than these live sites.
+
+@@@ browser-agent-bench
+title: browser-agent-bench
+cats: Project
+---
+{{infobox browser-agent-bench
+Type: Claude Code skill
+Location: ~/.claude/skills/browser-agent-bench/
+Tasks: 5 ground-truth workflows
+Sandbox: Local server on 127.0.0.1:8795
+Campaign log: ~/ai/sitegeist-campaign/ (10 runs)}}
+
+'''browser-agent-bench''' is our existing benchmark for browser-automation stacks. It already has most of what an RL [[environment]] needs: tasks, local sandbox pages and code [[verifier|verifiers]].
+
+== Tasks ==
+Defined in <code>examples/workflows.json</code>:
+* '''excalidraw''' and '''tldraw''': draw labelled shapes joined by an arrow on a canvas. Verified by <code>verify_js</code> reading the scene the sandbox mirrors into storage.
+* '''releases''': compare release pages across 3 tabs. Verified against GitHub, go.dev and ziglang APIs.
+* '''hn3''': open 3 Hacker News stories in tabs and summarise them. Verified against the HN Firebase API.
+* '''cities''': read Wikipedia infoboxes and submit them to httpbin. Verified by the exact echo.
+
+== Components ==
+* <code>scripts/serve.py</code>: serves the sandbox pages with caching off
+* <code>sitegeist/inspect.ts</code>: post-run checks for blank, ungrouped and focus-stealing tabs, then runs the verifier and takes a screenshot
+* <code>run.py</code>: drives omp or Claude Code in print mode and streams traces per task
+* <code>trace_stats.py</code>: calls, turns and tokens per run
+
+== What it needs to become an RL environment ==
+{{youtube 9hkjq6hQTYo How a computer-using agent loop works|Cobus Greyling}}
+
+# A reset / step / reward interface that a [[trl|TRL]] environment class can call.
+# Many copies running at once, each with its own browser.
+# '''Snapshots of live data''': releases and hn3 check live sites, so the same answer can score differently on different days. Freeze the pages as fixtures.
+# '''Parametrised tasks''': grow from 5 to a few dozen, for example cities with different city lists, or forms with different fields. See [[browser-skills]].
+# A held-out split that training never sees.
+
+@@@ browser-skills
+title: Browser skills to train
+cats: Project
+---
+'''Browser skills to train''' compares sub-skills of browser use by how much we use them and how well a [[verifier]] can check them. Usage comes from [[sitegeist-usage]].
+
+<div class="tw"><table class="wt">
+<tr><th>Skill</th><th>Our usage</th><th>Reward check</th><th>Fit for RL</th></tr>
+<tr><td>Multi-tab research and collect</td><td>High (enrichment, comparisons)</td><td>Extracted fields compared with independently fetched truth</td><td class="ok">Best start</td></tr>
+<tr><td>Form fill and submit</td><td>High (portals)</td><td>Local echo server returns the submitted values</td><td class="ok">Good</td></tr>
+<tr><td>Canvas drawing</td><td>Low</td><td>Scene check: shapes, labels, bound arrows</td><td class="ok">Good, already built</td></tr>
+<tr><td>Docs and slides editing</td><td>Medium</td><td>Possible with local document fixtures</td><td class="mid">Later</td></tr>
+<tr><td>Inbox triage</td><td>Highest</td><td>Private, signed in, judgement calls</td><td class="mid">Evaluation only, or [[llm-judge|judge]]-based</td></tr>
+</table></div>
+
+== Cross-cutting behaviours ==
+These can be rewarded on every task:
+* finishing in fewer tool calls
+* recovering from a timeout instead of looping
+* clean tabs: none blank or ungrouped, and no stolen focus
+* preferring page reads and clicks over fragile <code>run_js</code> where possible
+
+@@@ roadmap
+title: Roadmap
+cats: Project
+---
+The '''roadmap''' is the proposed order of work. Times are rough, and the [[run-time]] estimates feed the run lengths.
+
+<div class="tw"><table class="wt">
+<tr><th>Phase</th><th>Work</th><th>Hardware</th><th>Time</th><th>Done when</th></tr>
+<tr><td>0. Learn by doing</td><td>Unsloth GRPO tutorial, then TRL's Wordle notebook, on a 2B model</td><td>1 Spark</td><td class="num">1–3 evenings</td><td>You've watched a reward curve rise and know why</td></tr>
+<tr><td>1. Environment</td><td>Wrap [[browser-agent-bench]]; grow to ~50 parametrised tasks; freeze live data as fixtures</td><td>Mac + 1 Spark</td><td class="num">~1 week</td><td>Any model is scored on all tasks with one command</td></tr>
+<tr><td id="baseline">2. Baseline</td><td>Score each candidate 8 times per task; record [[pass-at-k|pass@1 and pass@8]]; keep tasks in the 10–70% band</td><td>PRO 6000s or Sparks</td><td class="num">1–2 days</td><td>A pass-rate table that picks the first target</td></tr>
+<tr><td>2b. Warm start (if needed)</td><td>If a small model never succeeds, short SFT on DeepSeek's successful trajectories</td><td>1 Spark</td><td class="num">Hours</td><td>The small model succeeds sometimes</td></tr>
+<tr><td>3. First LoRA-RL run</td><td>[[qwen3-5-small|Qwen3.5-4B]] or [[lfm3|LFM3-1.7B]], rank 16–32, ~150 steps; 4 variants side by side</td><td>1 Spark per run</td><td class="num">1.5–4 days</td><td>Held-out pass rate up, [[forgetting|general benchmarks]] flat</td></tr>
+<tr><td>4. Scale up</td><td>[[qwen3-8-27b|Qwen3.8-27B]] or [[nanbeige4-3-33b|Nanbeige4.3-33B]]</td><td>PRO 6000s + Sparks</td><td class="num">2–6 days per run</td><td>Beats the base model on our real browser workload</td></tr>
+<tr><td>5. MoE</td><td>[[glm-5-3-flash|GLM-5.3-Flash]] or [[qwen3-8-flash-next|Qwen3.8-Flash-Next]]</td><td>All 8 devices</td><td class="num">Unknown</td><td>Tooling exists and a small run is stable</td></tr>
+</table></div>
+
+== Expected gains ==
+Published web-agent RL on small models shows big jumps on narrow benchmarks: Llama-3.1-8B went from 4.8% to 42.4% on WebArena-Lite<ref>[https://arxiv.org/abs/2411.02337 Qi et al., "WebRL", 2024]</ref>, Qwen2.5-3B from 6.1% to 33.9%<ref>[https://arxiv.org/abs/2505.16421 Wei et al., "WebAgent-R1", 2025]</ref>, and a 2026 4B model reached 67.0% on Online-Mind2Web<ref>[https://arxiv.org/abs/2606.02031 OpenWebRL, 2026 (code not yet released)]</ref>. Stronger starting models gain less on general benchmarks. The gain on our tools and tasks is what phase 2 onward measures.
+
+== Further reading ==
+{{paper 2411.02337}}
+
+{{paper 2505.16421}}
+
+{{paper 2606.02031}}
+
+@@@ learning-path
+title: Learning path
+cats: Help
+---
+{{youtube LPZh9BOjkQs Start here: ''Large Language Models explained briefly''|3Blue1Brown}}
+
+The '''learning path''' is a suggested order for learning RL post-training from zero. Each item builds on the one before. Read the wiki articles alongside: [[post-training]] → [[reinforcement-learning]] → [[grpo]] → [[rollout]] → [[lora]].
+
+# [https://www.youtube.com/watch?v=7xTGNNLPyMI Karpathy, "Deep Dive into LLMs like ChatGPT"] (video). The best intuition for pretraining, then SFT, then RL. Watch the RL hour.
+# [https://huggingface.co/learn/llm-course/chapter12/1 Hugging Face LLM Course, chapter 12]. GRPO step by step, with runnable TRL code.
+# [https://www.deeplearning.ai/short-courses/reinforcement-fine-tuning-llms-grpo/ DeepLearning.AI: Reinforcement fine-tuning with GRPO]. A short course centred on designing rewards.
+# [https://unsloth.ai/docs/get-started/reinforcement-learning-rl-guide/tutorial-train-your-own-reasoning-model-with-grpo Unsloth GRPO tutorial]. Your first real run, on one [[dgx-spark|Spark]].
+# [https://huggingface.co/docs/trl/en/openenv TRL OpenEnv guide] and the [https://github.com/huggingface/trl/blob/main/examples/grpo_wordle/grpo_wordle.ipynb Wordle notebook]. Multi-turn RL with tools, leading straight to the BrowserGym example.
+# [https://thinkingmachines.ai/blog/lora/ LoRA Without Regret]. Why LoRA is enough for RL, and the settings to use.
+# [https://github.com/OpenPipe/ART OpenPipe ART notebooks]. Agent RL with an LLM judge, end to end.
+# [https://cameronrwolfe.substack.com/p/grpo Cameron Wolfe on GRPO]. A careful written derivation, once the intuition is there.
+# [https://rlhfbook.com/ The RLHF Book (Nathan Lambert)]. A free, current reference to come back to.
+# [https://magazine.sebastianraschka.com/p/the-state-of-llm-reasoning-model-training Raschka, "The State of RL for LLM Reasoning"]. A survey of GRPO, DAPO, Dr. GRPO and related methods.
+
+Then look up anything unfamiliar in the [[glossary]].
+
+== Watch, in order ==
+{{videos
+LPZh9BOjkQs 1. ''Large Language Models explained briefly''|3Blue1Brown
+7xTGNNLPyMI 2. ''Deep Dive into LLMs like ChatGPT''|Andrej Karpathy
+2MBJOuVq380 3. ''RLHF: From Zero to ChatGPT''|Hugging Face
+8jtAzxUwDj0 4. ''PPO for LLMs Explained Intuitively''|Julia Turc
+wEa9CmWPWoU 5. ''GRPO Explained under 40 Minutes''|Vizuara
+DhRoTONcyZE 6. ''What is LoRA'', by its inventor|Edward Hu
+SoPE1cUz3Hs 7. A local GRPO run with Unsloth|Bijan Bowen
+gEDl9C8s_-4 8. ''How to Train Your Agent'' with RL|AI Engineer, Kyle Corbitt
+nKJlF-olKmg 9. ''9 Examples of Specification Gaming''|Robert Miles AI Safety
+}}
+
+Every video on the wiki is listed in the [[video-library]].
+
+== Read ==
+{{cards https://huggingface.co/learn/llm-course/chapter12/1 https://thinkingmachines.ai/blog/lora/ https://rlhfbook.com/ https://cameronrwolfe.substack.com/p/grpo}}
+
+@@@ glossary
+title: Glossary
+cats: Help
+---
+<div class="tw"><table class="wt">
+<tr><th>Term</th><th>Meaning</th></tr>
+<tr><td>[[advantage|Advantage]]</td><td>How much better an attempt did than its group average</td></tr>
+<tr><td>Adapter</td><td>The small trained file [[lora|LoRA]] adds on top of a frozen model</td></tr>
+<tr><td>Dense / MoE</td><td>Dense models use every parameter per token; mixture-of-experts (MoE) models use a few "experts" per token</td></tr>
+<tr><td>[[environment|Environment]]</td><td>The world the model acts in, with reset, step and reward</td></tr>
+<tr><td>Episode</td><td>See [[rollout]]</td></tr>
+<tr><td>[[forgetting|Forgetting]]</td><td>Getting worse at untrained skills</td></tr>
+<tr><td>[[grpo|GRPO]]</td><td>The RL algorithm that compares attempts within a group</td></tr>
+<tr><td>Group</td><td>Several attempts at the same task, usually 8</td></tr>
+<tr><td>[[kl-penalty|KL penalty]]</td><td>A brake that keeps the model close to the original</td></tr>
+<tr><td>[[llm-judge|LLM judge]]</td><td>A strong model that grades attempts</td></tr>
+<tr><td>Masking</td><td>Excluding tokens (page text, the task) from the training loss</td></tr>
+<tr><td>[[on-off-policy|On / off-policy]]</td><td>Whether attempts came from the current adapter or an older one</td></tr>
+<tr><td>[[pass-at-k|pass@k]]</td><td>Chance at least one of k attempts succeeds</td></tr>
+<tr><td>[[policy|Policy]]</td><td>The model being trained, base plus adapter</td></tr>
+<tr><td>Rank</td><td>Width of a LoRA adapter's thin matrices</td></tr>
+<tr><td>[[reward|Reward]]</td><td>The score an attempt earns</td></tr>
+<tr><td>[[reward-hacking|Reward hacking]]</td><td>Scoring without doing the task</td></tr>
+<tr><td>RLVR / RLHF</td><td>RL with code-checked rewards / with learned human-preference rewards</td></tr>
+<tr><td>[[rollout|Rollout]]</td><td>One complete attempt at one task</td></tr>
+<tr><td>Step</td><td>One round of generating attempts and updating the adapter</td></tr>
+<tr><td>[[verifier|Verifier]]</td><td>Code that checks an attempt's end state</td></tr>
+</table></div>
+
+@@@ questions
+title: Questions for you
+cats: Project
+---
+{{note These answers decide what gets built first. They save to the wiki as you go, and Claude reads them from here. Pick what fits; the text boxes are optional.}}
+
+{{form}}
+
+@@@ about
+title: Help: editing
+cats: Help
+---
+'''Home RL Wiki''' is a working reference for RL post-training on our own hardware. Every article can be edited with the '''Edit''' tab. Edits are saved with a revision history ('''View history''') and appear in [[Special:RecentChanges|Recent changes]]. Each article also has a '''Talk''' page for questions and notes. Talk pages work like Wikipedia's: use '''Add topic''', and sign with <code><nowiki>~~~~</nowiki></code>. Ask Claude in the terminal to read and answer them. Everything is stored as plain text files in <code><nowiki>~/training-data-rl/wiki/content/</nowiki></code>.
+
+== Markup ==
+<div class="tw"><table class="wt">
+<tr><th>You type</th><th>You get</th></tr>
+<tr><td><code><nowiki>== Heading ==</nowiki></code></td><td>Section heading (<code><nowiki>=== Sub ===</nowiki></code> for subsections)</td></tr>
+<tr><td><code><nowiki>'''bold'''</nowiki></code>, <code><nowiki>''italic''</nowiki></code></td><td><b>bold</b>, <i>italic</i></td></tr>
+<tr><td><code><nowiki>[[lora]]</nowiki></code>, <code><nowiki>[[lora|adapters]]</nowiki></code></td><td>Link to another article; red if it doesn't exist yet</td></tr>
+<tr><td><code><nowiki>[https://example.com text]</nowiki></code></td><td>External link</td></tr>
+<tr><td><code><nowiki>* item</nowiki></code>, <code><nowiki># item</nowiki></code></td><td>Bulleted or numbered list</td></tr>
+<tr><td><code><nowiki><ref>source</ref></nowiki></code></td><td>Numbered footnote, listed under References</td></tr>
+<tr><td><code><nowiki>{{stub}}</nowiki></code>, <code><nowiki>{{note text}}</nowiki></code>, <code><nowiki>{{main slug}}</nowiki></code></td><td>Notice boxes and hatnotes</td></tr>
+<tr><td><code><nowiki>{{youtube VIDEOID Caption|Channel}}</nowiki></code></td><td>Embedded YouTube video, floated right like an image</td></tr>
+<tr><td><code><nowiki>{{videos</nowiki></code> then one <code><nowiki>ID Caption|Channel</nowiki></code> per line, then <code><nowiki>}}</nowiki></code></td><td>Video gallery</td></tr>
+<tr><td><code><nowiki>{{paper 2402.03300}}</nowiki></code></td><td>arXiv paper box with title, authors and abstract, fetched by the local server</td></tr>
+<tr><td><code><nowiki>{{card https://…}}</nowiki></code>, <code><nowiki>{{cards url url …}}</nowiki></code></td><td>Link preview card(s) with the page's title, description and image</td></tr>
+<tr><td><code><nowiki>{{infobox Title</nowiki></code> then lines <code><nowiki>Key: value</nowiki></code> then <code><nowiki>}}</nowiki></code></td><td>Infobox</td></tr>
+</table></div>
+Blank lines separate paragraphs. HTML tables are allowed; keep each table free of blank lines.
+
+== New pages ==
+Click any red link and press '''Create'''.
+
+@@@ video-library
+title: Video library
+cats: Videos, Help
+---
+The '''video library''' lists every video embedded on Home RL Wiki, grouped by topic. Each one was checked against YouTube on 1 November 2026. Click a thumbnail to play it here.
+
+== The big picture ==
+{{videos
+LPZh9BOjkQs ''Large Language Models explained briefly''|3Blue1Brown
+7xTGNNLPyMI ''Deep Dive into LLMs like ChatGPT''|Andrej Karpathy
+zjkBMFhNj_g ''Intro to Large Language Models''|Andrej Karpathy
+}}
+
+== Reinforcement learning for LLMs ==
+{{videos
+2MBJOuVq380 ''RLHF: From Zero to ChatGPT''|Hugging Face
+PAz_-xPJcRM ''The RLVR Revolution''|Latent Space, with Nathan Lambert
+o4AB5xHIDdM ''The Rise of Reasoning Models''|Nathan Lambert
+qGyFrqc34yc RLHF with math and PyTorch code|Umar Jamil
+yYZBd25rl4Q ''Why RL Won''|Latent Space, with Kyle Corbitt
+}}
+
+== GRPO, PPO and DeepSeek-R1 ==
+{{videos
+wEa9CmWPWoU ''GRPO Explained under 40 Minutes''|Vizuara
+bAWV_yrqx4w ''GRPO Explained'' (DeepSeekMath)|Yannic Kilcher
+K34gBCjzni8 ''DeepSeek R1 Theory Tutorial''|freeCodeCamp
+8jtAzxUwDj0 ''PPO for LLMs Explained Intuitively''|Julia Turc
+HrapVFNBN64 ''Proximal Policy Optimization Explained''|Edan Meyer
+XMnxKGVnEUc The DeepSeek-R1 paper|Umar Jamil
+DCqqCLlsIBU ''DeepSeek-R1 Paper Explained''|AI Papers Academy
+}}
+
+== LoRA and Tinker ==
+{{videos
+DhRoTONcyZE ''What is LoRA'', by its inventor|Edward Hu
+PXWYUTMt-AU LoRA, visually and in PyTorch|Umar Jamil
+Xb34YmbEiOc Ray Summit 2025 keynote|Anyscale, with Thinking Machines
+Mmo-B5HD0ac ''Tinker: an API for Fine-Tuning & RL''|AI Makerspace
+}}
+
+== KL divergence ==
+{{videos
+SxGYPqCgJWM ''Intuitively Understanding the KL Divergence''|Adian Liusie
+LJwtEaP2xKA KL divergence through secret codes|Ben Lambert
+tXE23653JrU ''Fantastic KL Divergence and How to (Actually) Compute It''|Jia-Bin Huang
+}}
+
+== Rewards, judges and reward hacking ==
+{{videos
+nKJlF-olKmg ''9 Examples of Specification Gaming''|Robert Miles AI Safety
+92qDfT8pENs ''Reward Hacking''|Robert Miles AI Safety
+1X1-IRaYY6U ''The RL Fine-Tuning Playbook''|Cognitive Revolution
+7EGF0Mc0_os Eugene Yan on LLMs as judges|Jason Liu
+a3SMraZWNNs ''How to Systematically Set Up LLM Evals''|Dave Ebbelaar
+BsWxPI9UM4c ''Why AI evals are the hottest new skill''|Lenny's Podcast
+}}
+
+== Agents and browser agents ==
+{{videos
+gEDl9C8s_-4 ''How to Train Your Agent''|AI Engineer, Kyle Corbitt
+X6R4loxcn0k ''Training Agents with RL''|OpenPipe
+VPcsAiUyu3Q CMU Advanced NLP 2026: Agents|Sean Welleck, with Zora Wang
+ixLXrgF77ME CMU: Agents and Multi-Agent Communication|Graham Neubig
+9hkjq6hQTYo ''How To Build A Computer-Using Agent''|Cobus Greyling
+}}
+
+== Models, MoE and serving ==
+{{videos
+0QQlYR1r6pQ ''Mixture of Experts, Visually Explained''|Jia-Bin Huang
+mwO6v4BlgZQ ''Mixtral of Experts''|Yannic Kilcher
+UiX8K-xBUpE Mistral / Mixtral explained|Umar Jamil
+0VLAoVGf_74 ''How DeepSeek Rewrote the Transformer''|Welch Labs
+5ZlavKF_98U ''Fast LLM Serving with vLLM and PagedAttention''|Anyscale
+m0JnK3b-Am4 ''KV-Cache & PagedAttention''|Eugen Soloviov
+}}
+
+== Hands-on and hardware ==
+{{videos
+SoPE1cUz3Hs A local GRPO run with Unsloth|Bijan Bowen
+OkEGJ5G3foU RL, kernels, reasoning and agents workshop|AI Engineer, Daniel Han
+4uLEMtAdQCM SFT, PPO and GRPO with TRL|Ricardo Calix
+FW8bCjhl3zE ''NVIDIA DGX Spark in 12 Minutes''|codebasics
+UaGFUtqravQ ''Introducing NVIDIA DGX Spark''|NVIDIA Developer
+Pf6jCMywpBY ''DGX Spark Live: VLM fine-tuning''|NVIDIA Developer
+}}

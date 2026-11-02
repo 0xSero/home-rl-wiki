@@ -1,0 +1,36 @@
+title: LLM judge
+cats: Concepts
+origin: seed
+at: 2026-11-02T00:52:49.532934Z
+author: Claude
+summary: Original version
+seedhash: cb0ab8db8397c4eb
+---
+{{infobox LLM judge
+Use when: Code can't check the result
+Example: OpenPipe RULER
+Our candidate judge: [[deepseek-v4-1-flash|DeepSeek-V4.1-Flash-1017]] on [[rtx-pro-6000|pop-os]]}}
+
+{{youtube 7EGF0Mc0_os Eugene Yan on using LLMs as judges|Jason Liu}}
+
+An '''LLM judge''' is a strong language model asked to grade attempts. It is used when success can't be checked by code, for example "did this summary of the inbox capture what needs a reply?"
+
+== Ranking instead of scoring ==
+OpenPipe's '''RULER''' shows the judge a whole [[grpo|group]] of 4–8 attempts at the same task and asks it to rank them, instead of scoring each one alone. Because [[grpo|GRPO]] only needs ''relative'' quality within a group, ranking is enough and is easier for the judge to get right. OpenPipe reports that RULER beat hand-written rewards on 3 of 4 tasks they tried.<ref>[https://art.openpipe.ai/fundamentals/ruler OpenPipe ART documentation: RULER]</ref>
+
+== Using what is already running ==
+DeepSeek-V4.1-Flash-1017 already serves on the RTX PRO 6000s. It could act as the judge without being evicted, while the [[dgx-spark|Sparks]] generate and train. See [[cluster-layout]].
+
+== Risks ==
+* The policy can learn to please the judge rather than do the task. Spot-check judged attempts by hand.
+* Judging costs inference time on every attempt.
+* Prefer a [[verifier]] wherever one is possible, and keep judges for the remainder.
+
+== Videos ==
+{{videos
+a3SMraZWNNs ''How to Systematically Set Up LLM Evals''|Dave Ebbelaar
+BsWxPI9UM4c ''Why AI evals are the hottest new skill''|Lenny's Podcast
+}}
+
+== Further reading ==
+{{cards https://art.openpipe.ai/fundamentals/ruler}}

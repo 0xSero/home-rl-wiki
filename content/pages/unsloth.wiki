@@ -1,0 +1,26 @@
+title: Unsloth
+cats: Frameworks
+origin: seed
+at: 2026-11-02T00:52:49.540226Z
+author: Claude
+summary: Original version
+seedhash: 9ff0f7ff6c648f44
+---
+{{infobox Unsloth
+LoRA RL: Yes (GRPO, Dr. GRPO, GSPO)
+Multi-turn: Not covered in the RL guide
+Rollouts: vLLM fast_inference
+DGX Spark: Official guide and Dockerfile
+Verdict: Best first run}}
+
+'''Unsloth''' is a fast, memory-efficient fine-tuning library with a GRPO path for LoRA and QLoRA.<ref>[https://github.com/unslothai/unsloth Unsloth repository]</ref><ref>[https://unsloth.ai/docs/get-started/reinforcement-learning-rl-guide Unsloth RL guide]</ref> It is the easiest way to watch a reward curve go up on a [[dgx-spark|Spark]] in an evening.
+
+== Notes ==
+{{youtube SoPE1cUz3Hs ''Train a DeepSeek-Style Reasoning Model with Unsloth'' (local tutorial)|Bijan Bowen}}
+
+* Official Spark guide and Dockerfile.<ref>[https://unsloth.ai/docs/blog/fine-tuning-llms-with-nvidia-dgx-spark-and-unsloth Unsloth: DGX Spark guide]</ref> A two-Spark pull request is open.<ref>[https://github.com/unslothai/unsloth/pull/10280 Unsloth PR #10280]</ref>
+* Qwen3.5-architecture models need <code>fast_inference=False</code>, which slows rollouts.
+* Its RL guide doesn't cover multi-turn agents, so move to [[trl|TRL]] for browser work.
+
+== Further reading ==
+{{cards https://unsloth.ai/docs/get-started/reinforcement-learning-rl-guide https://unsloth.ai/docs/blog/fine-tuning-llms-with-nvidia-dgx-spark-and-unsloth}}

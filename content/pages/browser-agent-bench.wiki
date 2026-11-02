@@ -1,0 +1,38 @@
+title: browser-agent-bench
+cats: Project
+origin: seed
+at: 2026-11-02T00:52:49.542985Z
+author: Claude
+summary: Original version
+seedhash: bdc6f36f49fb5fda
+---
+{{infobox browser-agent-bench
+Type: Claude Code skill
+Location: ~/.claude/skills/browser-agent-bench/
+Tasks: 5 ground-truth workflows
+Sandbox: Local server on 127.0.0.1:8795
+Campaign log: ~/ai/sitegeist-campaign/ (10 runs)}}
+
+'''browser-agent-bench''' is our existing benchmark for browser-automation stacks. It already has most of what an RL [[environment]] needs: tasks, local sandbox pages and code [[verifier|verifiers]].
+
+== Tasks ==
+Defined in <code>examples/workflows.json</code>:
+* '''excalidraw''' and '''tldraw''': draw labelled shapes joined by an arrow on a canvas. Verified by <code>verify_js</code> reading the scene the sandbox mirrors into storage.
+* '''releases''': compare release pages across 3 tabs. Verified against GitHub, go.dev and ziglang APIs.
+* '''hn3''': open 3 Hacker News stories in tabs and summarise them. Verified against the HN Firebase API.
+* '''cities''': read Wikipedia infoboxes and submit them to httpbin. Verified by the exact echo.
+
+== Components ==
+* <code>scripts/serve.py</code>: serves the sandbox pages with caching off
+* <code>sitegeist/inspect.ts</code>: post-run checks for blank, ungrouped and focus-stealing tabs, then runs the verifier and takes a screenshot
+* <code>run.py</code>: drives omp or Claude Code in print mode and streams traces per task
+* <code>trace_stats.py</code>: calls, turns and tokens per run
+
+== What it needs to become an RL environment ==
+{{youtube 9hkjq6hQTYo How a computer-using agent loop works|Cobus Greyling}}
+
+# A reset / step / reward interface that a [[trl|TRL]] environment class can call.
+# Many copies running at once, each with its own browser.
+# '''Snapshots of live data''': releases and hn3 check live sites, so the same answer can score differently on different days. Freeze the pages as fixtures.
+# '''Parametrised tasks''': grow from 5 to a few dozen, for example cities with different city lists, or forms with different fields. See [[browser-skills]].
+# A held-out split that training never sees.

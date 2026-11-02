@@ -1,0 +1,15 @@
+title: Policy
+cats: Concepts
+origin: seed
+at: 2026-11-02T00:52:49.531594Z
+author: Claude
+summary: Original version
+seedhash: d43f0f6aa93bbbc4
+---
+'''Policy''' is the RL name for the thing that decides what to do next. Here it is the language model plus its current [[lora|LoRA adapter]]. Given everything so far (the task, previous tool calls, page text), the policy produces the next tokens, which become the next action.
+
+"Updating the policy" means changing the adapter's numbers. The base model never changes. During a run there are several versions of the policy: the one that generated the current attempts, the one being trained, and sometimes a frozen '''reference policy''' (the original model) for the [[kl-penalty]].
+
+== See also ==
+* [[on-off-policy]]
+* [[reinforcement-learning]]

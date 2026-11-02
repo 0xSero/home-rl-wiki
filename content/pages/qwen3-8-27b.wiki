@@ -1,0 +1,33 @@
+title: Qwen3.8-27B
+cats: Models
+origin: seed
+at: 2026-11-02T00:52:49.538467Z
+author: Claude
+summary: Original version
+seedhash: a9c6491179028dd1
+---
+{{infobox Qwen3.8-27B
+Developer: Alibaba Qwen
+Released: 5 August 2026
+Parameters: 27.8B dense (incl. vision encoder)
+Layers: 64 = 16 × (3 Gated DeltaNet + 1 gated full attention)
+Hidden size: 5120
+Context: 262K (extensible to 1M)
+Extras: Multi-token prediction, native vision
+License: Apache-2.0
+Base model: Not published
+Role here: Main target}}
+
+'''Qwen3.8-27B''' is a dense 27.8B vision-language model with a hybrid linear/full attention design.<ref>[https://huggingface.co/Qwen/Qwen3.8-27B Qwen3.8-27B model card]</ref> It ships as one post-trained checkpoint with thinking on by default; thinking can be turned off per request. No Base checkpoint is published.
+
+== Browser ability today ==
+The card reports '''64.8 on WebArena-Verified''', against 48.8 for Qwen3.6-27B. That starting point is strong. General web gains from RL will be smaller than for a 4B model. The gains on our own tool interface and tasks are still unmeasured, and they are what the [[roadmap]] targets.
+
+== In this project ==
+* Fits a single [[dgx-spark|Spark]] for training in BF16 (~56 GB of weights).
+* Estimated 150-step run: ~5 days with [[rtx-pro-6000|PRO 6000s]] generating and Sparks training, ~2 days on the PRO 6000s alone, ~9.5 days on Sparks alone. See [[run-time]].
+* OpenPipe ART's notebooks use this model, so [[openpipe-art|ART]] is a well-trodden path.<ref>[https://github.com/OpenPipe/ART OpenPipe ART repository]</ref>
+* Thinking on means long outputs. Train with thinking off, or a low budget, to keep [[rollout|rollouts]] short.
+
+== Further reading ==
+{{card https://huggingface.co/Qwen/Qwen3.8-27B}}

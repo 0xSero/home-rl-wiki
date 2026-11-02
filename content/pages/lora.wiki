@@ -1,0 +1,56 @@
+title: LoRA
+cats: Concepts
+origin: seed
+at: 2026-11-02T00:52:49.535550Z
+author: Claude
+summary: Original version
+seedhash: c1452d908d7e1da4
+---
+{{infobox Low-Rank Adaptation
+Abbreviation: LoRA
+Trains: Two thin matrices per layer
+Base weights: Frozen, never written
+Adapter size: Typically a few hundred MB
+Rank needed for RL: 1–32 (see below)
+Learning rate: ~10× full fine-tuning}}
+
+{{youtube DhRoTONcyZE ''What is Low-Rank Adaptation (LoRA)'', explained by its inventor|Edward Hu}}
+
+'''LoRA''' (Low-Rank Adaptation) is a way to train a model without changing its weights. Each weight matrix W is frozen, and a small trainable correction is added beside it: the product of two thin matrices, B and A. Only B and A are trained.
+
+{{fig lora}}
+
+== Does it damage the model? ==
+The base weights can't be damaged, because they are never written. The adapter is a separate file. Unload it and you have exactly the original model. With the adapter loaded the model behaves differently, and it ''can'' get worse at things you didn't train. That is [[forgetting]], and you measure it with a general benchmark before and after.
+
+== Why LoRA suits RL especially well ==
+{{card https://thinkingmachines.ai/blog/lora/}}
+
+Thinking Machines' "LoRA Without Regret" study found:<ref>[https://thinkingmachines.ai/blog/lora/ Schulman et al., "LoRA Without Regret", Thinking Machines, 2025]</ref>
+* For RL, LoRA matches full fine-tuning '''even at rank 1'''. Each RL episode carries only a few bits of information (roughly "this worked" or "this didn't"), so a tiny adapter has plenty of capacity.
+* The best learning rate is about '''10×''' the full fine-tuning rate (their fitted factor is 9.8).
+* Put LoRA on '''all layers''', especially the MLP and expert layers. Attention-only LoRA underperforms.
+* LoRA tolerates very large batches less well than full fine-tuning.
+
+== Practical benefits on our hardware ==
+* '''Memory''': the optimizer only tracks the adapter, so a frozen 27B model plus its adapter trains on one [[dgx-spark|Spark]].
+* '''Shipping''': between steps only the adapter crosses the network, megabytes instead of a 55 GB model. This makes the split between [[rtx-pro-6000|PRO 6000s]] and [[dgx-spark|Sparks]] practical. See [[cluster-layout]].
+* '''Serving''': vLLM can serve many adapters on one base model and switch between them per request.
+* '''Free reference model''': switch the adapter off to get the original for the [[kl-penalty]].
+
+
+== Videos ==
+{{videos
+PXWYUTMt-AU LoRA explained visually, with PyTorch code from scratch|Umar Jamil
+Xb34YmbEiOc Ray Summit 2025 keynote: the shift to LLM fine-tuning|Anyscale, with Thinking Machines
+Mmo-B5HD0ac ''Tinker: an API for Fine-Tuning & RL''|AI Makerspace
+}}
+
+== Further reading ==
+{{paper 2106.09685}}
+
+{{cards https://tinker-docs.thinkingmachines.ai/ https://github.com/thinking-machines-lab/tinker-cookbook}}
+
+== See also ==
+* [[forgetting]]
+* [[cluster-layout]]

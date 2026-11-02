@@ -1,0 +1,22 @@
+title: Forgetting
+cats: Concepts
+origin: seed
+at: 2026-11-02T00:52:49.535892Z
+author: Claude
+summary: Original version
+seedhash: 76156a3352278058
+---
+'''Forgetting''' (or catastrophic forgetting) is when training on one skill makes a model worse at others. With [[lora|LoRA]] the base model is untouched, so forgetting only applies while the adapter is loaded, and it is fully reversible.
+
+== RL forgets less than SFT ==
+"RL's Razor" (2025) found that online RL forgets less than supervised fine-tuning at the same gain, because RL keeps the model close to its own original distribution.<ref>[https://arxiv.org/abs/2509.04259 Shenfeld et al., "RL's Razor: Why Online Reinforcement Learning Forgets Less", 2025]</ref>
+
+== How we would check ==
+Run a small fixed panel before and after each run. We already have the harnesses:
+* GPQA Diamond (knowledge and reasoning)
+* Terminal-Bench and SWE-bench (coding agents)
+* a held-out set of browser tasks never used in training
+If general scores drop by more than noise, lower the learning rate, train fewer steps, or add a [[kl-penalty]].
+
+== Further reading ==
+{{paper 2509.04259}}

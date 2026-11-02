@@ -1,0 +1,30 @@
+title: Qwen3.8-Flash-Next
+cats: Models
+origin: seed
+at: 2026-11-02T00:52:49.539013Z
+author: Claude
+summary: Original version
+seedhash: f9ea64a3d164d2cb
+---
+{{infobox Qwen3.8-Flash-Next
+Developer: Alibaba Qwen
+Released: 24 August 2026
+Parameters: 125B MoE, 6B active (+51B n-gram embeddings, +4B MTP; ~180B in the repo)
+Layers: 48 = 12 × (3 Gated DeltaNet + 1 Qwen Sparse Attention)
+Experts: 512; 10 routed + 1 shared active
+Context: 262K (extensible to 1M)
+License: qwen-community-1.0 (not Apache)
+Role here: Later}}
+
+'''Qwen3.8-Flash-Next''' is a sparse mixture-of-experts model that the card describes as a preview of the Qwen4 architecture.<ref>[https://huggingface.co/Qwen/Qwen3.8-Flash-Next Qwen3.8-Flash-Next model card]</ref><ref>[https://qwen.ai/blog?id=qwen3.8-flash-next Qwen blog: Qwen3.8-Flash-Next]</ref> With only 6B active parameters it is very fast at inference, and it already drives some of our [[sitegeist-usage|Sitegeist sessions]].
+
+== Why not yet ==
+* All ~180B parameters must sit in memory to train, even though only 6B are active per token.
+* LoRA on expert layers, which [[lora|LoRA Without Regret]] says matters, isn't mature in the [[frameworks]].
+* The architecture is new, so framework support lags.
+* The license is not Apache. Check its terms before publishing an adapter.
+
+On paper, the [[run-time]] estimator fits it on 4 Sparks in BF16 (~3.3 days), or on the PRO 6000s with an FP8 frozen base (~20 hours). Treat both as placeholders until the tooling exists.
+
+== Further reading ==
+{{card https://huggingface.co/Qwen/Qwen3.8-Flash-Next}}

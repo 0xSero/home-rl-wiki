@@ -1,0 +1,58 @@
+title: Post-training
+cats: Concepts
+origin: seed
+at: 2026-11-02T00:52:49.530941Z
+author: Claude
+summary: Original version
+seedhash: 6ca595566129fb4b
+---
+{{infobox Post-training
+Comes after: Pretraining
+Main kinds: Supervised fine-tuning (SFT), [[reinforcement-learning|reinforcement learning]], preference tuning
+Typical cost: Hours to days on a few GPUs
+Changes: A copy of the weights, or a [[lora|LoRA adapter]] on top}}
+
+{{youtube 7xTGNNLPyMI ''Deep Dive into LLMs like ChatGPT'': the whole pipeline from pretraining to RL, for a general audience|Andrej Karpathy}}
+
+'''Post-training''' is everything done to a language model after pretraining. Pretraining teaches a model to predict the next token over trillions of tokens of text. Post-training turns that raw predictor into something that follows instructions, uses tools and finishes tasks.
+
+Every model in [[model-comparison|our candidate list]] has already been post-trained by its lab. This wiki is about adding one more short, narrow stage on top, aimed at the browser tasks we actually do.
+
+{{fig stages}}
+
+== Pretraining ==
+{{youtube LPZh9BOjkQs ''Large Language Models explained briefly'': a short visual primer|3Blue1Brown}}
+
+The model reads a huge corpus and learns to guess the next token. It costs months on thousands of GPUs, and labs do it for us. The result knows a lot but has no particular goal.
+
+== Supervised fine-tuning ==
+'''Supervised fine-tuning''' (SFT) shows the model worked examples, "here is a request and here is the ideal answer", and trains it to copy them. It teaches format, style and basic tool use. Its weakness is that somebody has to write the ideal answer, and the model only ever sees good examples, never its own mistakes.
+
+== Reinforcement learning ==
+{{youtube 2MBJOuVq380 ''RLHF: From Zero to ChatGPT''|Hugging Face}}
+
+{{main reinforcement-learning}}
+
+In [[reinforcement-learning|reinforcement learning]] the model makes its own attempts, a [[verifier]] scores them, and the model is pushed toward the attempts that scored well. No ideal answer is needed, only a way to tell success from failure. For browser tasks that is far easier than writing out the perfect sequence of forty clicks.
+
+== Why RL after SFT ==
+* SFT copies, RL ''selects''. RL learns from the model's own successes and failures in the real environment.
+* RL makes a model ''reliable'' at things it can already sometimes do. See [[pass-at-k]].
+* RL tends to cause less [[forgetting]] of other skills than SFT does.<ref>[https://arxiv.org/abs/2509.04259 Shenfeld et al., "RL's Razor: Why Online Reinforcement Learning Forgets Less", 2025]</ref>
+* A short SFT "warm start" is still useful when the model never succeeds at a task. See [[roadmap]].
+
+
+== Videos ==
+{{videos
+zjkBMFhNj_g ''Intro to Large Language Models'' (1-hour talk)|Andrej Karpathy
+}}
+
+== Further reading ==
+{{cards https://rlhfbook.com/ https://huggingface.co/learn/llm-course/chapter12/1}}
+
+{{paper 2509.04259}}
+
+== See also ==
+* [[reinforcement-learning]]
+* [[lora]]
+* [[learning-path]]

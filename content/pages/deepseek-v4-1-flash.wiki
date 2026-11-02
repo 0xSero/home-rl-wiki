@@ -1,0 +1,34 @@
+title: DeepSeek-V4.1-Flash-1017
+cats: Models
+origin: seed
+at: 2026-11-02T00:52:49.539504Z
+author: Claude
+summary: Original version
+seedhash: d20959fa62dc816e
+---
+{{infobox DeepSeek-V4.1-Flash-1017
+Developer: DeepSeek
+Released: 17 October 2026 (update to V4.1-Flash of 10 September)
+Parameters: 552B MoE backbone + 196B Engram memory
+Active: Listed as "8B / 16B" (meaning unclear on the card)
+Layers: 40, causal encoder-decoder
+Experts: 384, top-6
+Attention: CSA2 sparse
+Context: 1M
+License: MIT
+Role here: [[llm-judge|Judge]] and teacher}}
+
+'''DeepSeek-V4.1-Flash-1017''' is the model now serving on the [[rtx-pro-6000|RTX PRO 6000s]].<ref>[https://huggingface.co/deepseek-ai/DeepSeek-V4.1-Flash-1017 DeepSeek-V4.1-Flash-1017 model card]</ref> The card ships no Jinja chat template; prompts must be built with its <code>encoding.py</code>.
+
+== Why it isn't a training target ==
+At roughly 750B parameters in total, it doesn't fit in our combined memory for training, even with an FP8 base.
+
+== How it helps anyway ==
+{{youtube 0VLAoVGf_74 ''How DeepSeek Rewrote the Transformer'': the MLA attention behind DeepSeek's models|Welch Labs}}
+
+* '''Judge''': grade or rank attempts that code can't check. See [[llm-judge]].
+* '''Teacher''': it already drives about 9,500 of our [[sitegeist-usage|Sitegeist calls]]. Its successful trajectories on our tasks could give a small model a short SFT warm start when the small model never succeeds on its own. See [[roadmap]].
+* '''Task writer''': generate variations of [[browser-agent-bench]] tasks.
+
+== Further reading ==
+{{card https://huggingface.co/deepseek-ai/DeepSeek-V4.1-Flash-1017}}

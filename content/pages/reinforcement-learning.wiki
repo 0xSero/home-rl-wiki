@@ -1,0 +1,66 @@
+title: Reinforcement learning
+cats: Concepts
+origin: seed
+at: 2026-11-02T00:52:49.531273Z
+author: Claude
+summary: Original version
+seedhash: 8f1151e83c57483c
+---
+{{infobox Reinforcement learning (for LLMs)
+Learns from: Scores, not answers
+Loop: [[rollout|Attempt]] → [[reward|score]] → update
+Main algorithm here: [[grpo|GRPO]] and variants
+Trained part: A [[lora|LoRA adapter]]; base weights frozen
+Typical run: 100–300 steps}}
+
+{{youtube PAz_-xPJcRM ''The RLVR Revolution'': how post-training moved from human feedback to verifiable rewards|Latent Space, with Nathan Lambert}}
+
+'''Reinforcement learning''' ('''RL''') is a way of training a model by letting it try things and telling it how well each try went. For language models, a "try" is a complete answer or, for agents, a complete multi-step [[rollout|attempt at a task]]. The model is updated so that the token choices that led to high scores become more likely.
+
+== The loop ==
+{{fig loop}}
+
+One trip around the loop is one '''step'''. In each step:
+# The current [[policy]] (base model + adapter) attempts a batch of tasks, several times each.
+# A [[verifier]] or an [[llm-judge|LLM judge]] gives each attempt a [[reward]].
+# Each attempt's reward is compared to the others in its group (the [[advantage]]).
+# The adapter is nudged toward the above-average attempts and away from the below-average ones.
+# The new adapter is used for the next step's attempts.
+
+== What RL can and cannot do ==
+RL mostly '''sharpens''' what a model can already sometimes do. If a model solves a task 2 times out of 8, RL can push that toward 7 out of 8. If it solves it 0 times out of 8, every attempt gets the same score, there is nothing to compare, and the model learns nothing from that task.
+
+This makes '''task selection''' the most important decision in an RL project: keep tasks where the starting model succeeds roughly 10–70% of the time. See [[roadmap#baseline|Baseline]] in the roadmap and [[pass-at-k]].
+
+== RL for LLMs versus classic RL ==
+Classic RL trains agents to play games or control robots, where an action is a joystick move. For language models the actions are '''tokens''', and an episode is one complete answer or agent session. The same ideas apply, with two simplifications that made RL practical for LLMs:
+* The starting model is already good, so it needs a nudge, not training from scratch.
+* Rewards can often be checked by code (did the test pass, does the answer match), which is called ''RL with verifiable rewards'' (RLVR).<ref>[https://arxiv.org/abs/2411.15124 Lambert et al., "Tülu 3: Pushing Frontiers in Open Language Model Post-Training", 2024 (introduces the RLVR term)]</ref>
+
+== RLVR and RLHF ==
+{{youtube o4AB5xHIDdM ''The Rise of Reasoning Models'': lecture 5 of the RLHF Book course|Nathan Lambert}}
+
+* '''RLVR''': the reward comes from a program. Our browser tasks fit here: the form either submitted the right values or it didn't.
+* '''RLHF''': the reward comes from a model trained on human preferences ("which answer is better?"). Used for tone and helpfulness, where no program can judge.
+* In between, an [[llm-judge|LLM judge]] such as DeepSeek-V4.1-Flash can grade attempts that code can't check.
+
+== Where the cost goes ==
+Each step has two halves: '''generating attempts''' (rollouts) and '''training''' on them. For browser agents both are heavy, because every attempt contains a lot of page text. The [[run-time]] article estimates both halves for our hardware.
+
+
+== Videos ==
+{{videos
+yYZBd25rl4Q ''Why RL Won''|Latent Space, with Kyle Corbitt
+qGyFrqc34yc RLHF with math derivations and PyTorch code|Umar Jamil
+}}
+
+== Further reading ==
+{{paper 2411.15124}}
+
+{{cards https://rlhfbook.com/ https://magazine.sebastianraschka.com/p/the-state-of-llm-reasoning-model-training}}
+
+== See also ==
+* [[grpo]]
+* [[rollout]]
+* [[reward-hacking]]
+* [[learning-path]]

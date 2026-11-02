@@ -1,0 +1,46 @@
+title: Sitegeist usage
+cats: Project
+origin: seed
+at: 2026-11-02T01:58:30.332889Z
+author: Claude
+summary: Updated original version
+seedhash: 0baec8ad46b63823
+---
+'''Sitegeist usage''' summarises how our coding agents used the Sitegeist browser tools from 17 September to 1 November 2026. The counts come from Claude Code, Codex CLI, OMP and Pi session transcripts on the Mac, and include only sessions that actually called Sitegeist tools.
+
+== Volume ==
+<div class="tw"><table class="wt">
+<tr><th>Harness</th><th>Sessions</th><th>Tool calls</th><th>Median calls / session</th><th>p90</th></tr>
+<tr><td>OMP</td><td class="num">202</td><td class="num">21,903</td><td class="num">54</td><td class="num">211</td></tr>
+<tr><td>Claude Code</td><td class="num">110</td><td class="num">5,951</td><td class="num">8</td><td class="num">138</td></tr>
+<tr><td>Codex CLI</td><td class="num">15</td><td class="num">2,663</td><td class="num">98</td><td class="num">359</td></tr>
+<tr><td>Pi</td><td class="num">1</td><td class="num">3</td><td class="num">–</td><td class="num">–</td></tr>
+<tr><th>Total</th><th class="num">328</th><th class="num">~30,520</th><th></th><th></th></tr>
+</table></div>
+
+== Who drove the browser ==
+About half of all calls came from open models we could train or replace: [[deepseek-v4-1-flash|DeepSeek-V4.1-Flash]] (~9.5k including the 1017 update), [[glm-5-3-flash|GLM-5.3-Flash]] (~6k) and [[qwen3-8-flash-next|Qwen3.8-Flash-Next]] (~0.8k). Claude Opus 5.5 (~7.2k), Claude Sonnet 5.5 (~2.7k) and GPT-6.1 (~2.9k) made up most of the rest.
+
+== What the tasks were ==
+* Email and inbox triage: ~31% of sessions, the heaviest by calls
+* Batch profile enrichment across X and LinkedIn: ~20%
+* Signed-in portals and forms (government and booking portals): ~5% explicit, more inside the email sessions
+* Local app previews and screenshots: ~5%
+* Dev portals (GitHub, Hugging Face, Vercel, Cloudflare): ~5%
+* Docs, Notion and Slides: ~4%; YouTube and media: ~4%; canvas drawing: ~1%; shopping: ~1%
+
+== Tools used ==
+<code>run_js</code> 38.5%, <code>navigate</code> 17%, <code>wait</code> 8%, <code>click</code> 7%, <code>screenshot</code> 5.5%, <code>read_page</code> 5%, <code>get_page_text</code> 4%, <code>find</code> 3%. Agents script the page through JavaScript much more than they click, which matters for [[reward-hacking]] defences.
+
+== Failures ==
+2,303 tool calls errored, and 273 of the 328 sessions had at least one error.
+* Timeouts: 61%, mostly long <code>run_js</code> and <code>navigate</code> waits on heavy single-page apps
+* JavaScript errors: 13%
+* Navigation or load failures: 10%
+* Stale or missing element references: 4%
+* Tab or group problems: 2%
+* Permission or site denied: under 1%
+Login walls and captchas were handed to the user rather than logged as errors.
+
+== What this means for RL ==
+See [[browser-skills]] for which of these to train, and [[environment]] for why training runs against local fixtures rather than these live sites.

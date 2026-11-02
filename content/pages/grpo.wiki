@@ -1,0 +1,61 @@
+title: GRPO
+cats: Concepts, Algorithms
+origin: seed
+at: 2026-11-02T00:52:49.533204Z
+author: Claude
+summary: Original version
+seedhash: 9e0f51627712a7a6
+---
+{{infobox Group Relative Policy Optimization
+Abbreviation: GRPO
+Introduced: DeepSeekMath, 2024
+Key idea: Compare attempts within a group; no critic model
+Variants: [[grpo-variants|DAPO, Dr. GRPO, GSPO]]
+Supported by: Every [[frameworks|framework]] listed here}}
+
+'''Group Relative Policy Optimization''' ('''GRPO''') is the RL algorithm most open labs use for language models. It was introduced in the DeepSeekMath paper<ref>[https://arxiv.org/abs/2402.03300 Shao et al., "DeepSeekMath", 2024]</ref> and made famous by DeepSeek-R1.<ref>[https://arxiv.org/abs/2501.12948 DeepSeek-AI, "DeepSeek-R1", 2025]</ref>
+
+== The idea ==
+{{youtube wEa9CmWPWoU ''GRPO Explained under 40 Minutes'': built up from scratch|Vizuara}}
+
+Give the model the same task several times, score every attempt, and compare each score with the group's average.
+
+{{fig grpo}}
+
+The [[advantage]] of an attempt is its reward minus the group mean, often divided by the group's spread. Attempts with positive advantage have their tokens made more likely. Attempts with negative advantage have theirs made less likely. If all attempts succeed or all fail, every advantage is zero and the task teaches nothing that step.
+
+== Why it became the default ==
+{{youtube bAWV_yrqx4w ''GRPO Explained'': a walkthrough of the DeepSeekMath paper|Yannic Kilcher}}
+
+Older methods (PPO) train a second network, the '''critic''', to predict how good each state is. GRPO replaces the critic with the group average. That removes a whole model from memory and a lot of tuning, which matters on hardware like ours.
+
+== Compared with PPO ==
+{{youtube 8jtAzxUwDj0 ''PPO for LLMs Explained Intuitively''|Julia Turc}}
+
+PPO (Proximal Policy Optimization) is the algorithm GRPO grew out of. PPO estimates how good each step is with a learned '''critic''' model; GRPO swaps the critic for the plain average of the group. Both clip each update so the [[policy]] can't move too far in one step. Watching a PPO explainer first makes GRPO's simplification obvious.
+
+== The knobs ==
+* '''Group size''': attempts per task. 8 is common; more gives a better average but costs more [[rollout|rollouts]].
+* '''Learning rate''': for [[lora|LoRA]], about 10× what full fine-tuning would use.<ref>[https://thinkingmachines.ai/blog/lora/ Schulman et al., "LoRA Without Regret", Thinking Machines, 2025]</ref>
+* '''Clipping''': limits how far one step can move the policy.
+* '''[[kl-penalty|KL penalty]]''': optional brake that keeps the policy near the original.
+
+
+== Videos ==
+{{videos
+K34gBCjzni8 ''DeepSeek R1 Theory Tutorial: Architecture, GRPO, KL Divergence''|freeCodeCamp
+XMnxKGVnEUc The DeepSeek-R1 paper, explained|Umar Jamil
+DCqqCLlsIBU ''DeepSeek-R1 Paper Explained''|AI Papers Academy
+}}
+
+== Further reading ==
+{{paper 2402.03300}}
+
+{{paper 2501.12948}}
+
+{{cards https://cameronrwolfe.substack.com/p/grpo https://huggingface.co/learn/llm-course/chapter12/1}}
+
+== See also ==
+* [[grpo-variants]]
+* [[advantage]]
+* [[reinforcement-learning]]

@@ -1,0 +1,7 @@
+__pycache__/
+dist/
+server.log
+content/history/
+content/changes.jsonl
+content/answers.json
+.DS_Store

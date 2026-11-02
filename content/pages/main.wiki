@@ -1,0 +1,43 @@
+title: Main Page
+cats: 
+origin: seed
+at: 2026-11-02T00:52:49.530012Z
+author: Claude
+summary: Original version
+seedhash: 04fc7a5c3eb352d5
+---
+<div class="mp-cols"><div>
+<div class="mp-box blue"><h2 class="mph">From today's featured article</h2><div class="in">
+{{youtube DhRoTONcyZE LoRA, explained by its inventor|Edward Hu}}
+'''[[lora|LoRA]]''' (Low-Rank Adaptation) trains a small add-on beside a frozen model, so the original weights are never written. Unload the adapter and you have exactly the original model back. For [[reinforcement-learning|reinforcement learning]] in particular, a 2025 study by Thinking Machines found that LoRA matches training every weight, '''even at rank 1''', because each attempt carries only a few bits of information. Between training steps only the adapter, a few megabytes, has to cross the network. That is what makes it practical to split the work between our [[rtx-pro-6000|RTX PRO 6000s]], which generate attempts, and our [[dgx-spark|DGX Sparks]], which train on them. ([[lora|Full article…]])
+</div></div>
+<div class="mp-box green"><h2 class="mph">Did you know…</h2><div class="in"><ul>
+<li>… that our coding agents made about '''30,500''' Sitegeist browser calls in seven weeks, and about half of them came from open models we could train? ([[sitegeist-usage]])</li>
+<li>… that '''61%''' of failed browser calls were timeouts, which is why RL training runs against local test pages instead of live sites? ([[rollout]])</li>
+<li>… that RL cannot teach a task the model ''never'' solves, because when every attempt scores the same there is nothing to compare? ([[pass-at-k]])</li>
+<li>… that [[grpo|GRPO]] needs no critic model and simply compares each attempt with its group's average?</li>
+<li>… that halving the page text in each attempt roughly halves training time? ([[run-time]])</li>
+<li>… that [[deepseek-v4-1-flash|DeepSeek-V4.1-Flash-1017]] is too large to train at home, but could grade other models' attempts as an [[llm-judge|LLM judge]]?</li>
+</ul></div></div>
+<div class="mp-box"><h2 class="mph">Start here</h2><div class="in">New to all of this? Read in order: [[post-training]] → [[reinforcement-learning]] → [[grpo]] → [[rollout]] → [[lora]] → [[cluster-layout]] → [[run-time]] → [[roadmap]]. Then follow the [[learning-path]] of videos, courses and notebooks, or browse the [[video-library]].</div></div>
+</div><div>
+<div class="mp-box"><h2 class="mph">Project news</h2><div class="in"><ul>
+<li>'''1 November 2026''' – A survey of 328 Sitegeist sessions finds about 30,500 browser tool calls since 17 September. ([[sitegeist-usage]])</li>
+<li>'''31 October''' – FP8, INT8 and INT4 versions of [[nanbeige4-3-33b|Nanbeige4.3-33B]] are published.</li>
+<li>'''24 October''' – Nanbeige releases [[nanbeige4-3-33b|Nanbeige4.3-33B]], a dense 33B model in the Llama architecture.</li>
+<li>'''17 October''' – DeepSeek releases [[deepseek-v4-1-flash|DeepSeek-V4.1-Flash-1017]], now serving on pop-os.</li>
+<li>'''Open''' – verl pull request #7483 would add LoRA RL for mixture-of-experts models such as [[glm-5-3-flash|GLM-5.3-Flash]]. ([[verl]])</li>
+</ul></div></div>
+<div class="mp-box"><h2 class="mph">Featured video</h2><div class="in">
+{{youtube 7xTGNNLPyMI Deep Dive into LLMs like ChatGPT|Andrej Karpathy}}
+Andrej Karpathy's long walk-through of how a chat model is built: pretraining on internet text, supervised fine-tuning on conversations, then reinforcement learning. It is the single best background for this wiki. More in the [[video-library]].
+</div></div>
+<div class="mp-box"><h2 class="mph">Our hardware</h2><div class="in"><ul>
+<li>[[dgx-spark|DGX Spark]] × 4: 128 GB each, slow memory bandwidth, used for training</li>
+<li>[[rtx-pro-6000|RTX PRO 6000]] × 4 in pop-os: 96 GB each, fast, now serving DeepSeek-V4.1-Flash</li>
+<li>[[cluster-layout]]: which machines generate, train and judge</li>
+<li>[[run-time|Run-time estimator]]: how long a training run would take</li>
+</ul></div></div>
+<div class="mp-box"><h2 class="mph">Open questions</h2><div class="in">Thirteen questions decide what gets built first: what to train, whether the PRO 6000s can be lent, and what "economic system" means. '''[[questions|Answer them here →]]'''</div></div>
+</div></div>
+<div class="mp-box"><h2 class="mph">Wiki areas</h2><div class="in">[[Category:Concepts|Concepts]] · [[Category:Algorithms|Algorithms]] · [[Category:Hardware|Hardware]] · [[Category:Models|Models]] · [[Category:Frameworks|Frameworks]] · [[Category:Project|Project]] · [[Category:Videos|Videos]] · [[Category:Help|Help]] · [[Special:AllPages|All pages]] · [[Special:RecentChanges|Recent changes]]</div></div>

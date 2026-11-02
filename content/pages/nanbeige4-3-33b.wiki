@@ -1,0 +1,32 @@
+title: Nanbeige4.3-33B
+cats: Models
+origin: seed
+at: 2026-11-02T00:52:49.538730Z
+author: Claude
+summary: Original version
+seedhash: 30e831d15a836465
+---
+{{note This is our best guess for "Nanpage 33B" from the voice note. Please confirm on the [[questions]] page.}}
+
+{{infobox Nanbeige4.3-33B
+Developer: Nanbeige
+Released: 24 October 2026
+Parameters: 33.1B dense
+Architecture: Llama-style, 52 layers, hidden 7168, GQA 56/8
+Context: 512K
+Variants: Base and post-trained; FP8, INT8, INT4 (31 Oct)
+License: Apache-2.0
+Role here: Main target}}
+
+'''Nanbeige4.3-33B''' is a dense 33B model in the plain Llama architecture.<ref>[https://huggingface.co/Nanbeige/Nanbeige4.3-33B Nanbeige4.3-33B model card]</ref> The post-trained model has a thinking toggle and a <code>preserve_thinking</code> option for multi-turn tool use. The card positions it as an agentic "teacher" model and claims it beats [[qwen3-8-27b|Qwen3.8-27B]] on most agentic benchmarks. That is the developer's claim, and our baseline would check it.
+
+== Why it is attractive here ==
+* '''Plain architecture''': every RL [[frameworks|framework]] supports Llama-style models, with none of the hybrid-attention edge cases.
+* '''A Base checkpoint exists''' ([https://huggingface.co/Nanbeige/Nanbeige4.3-33B-Base Nanbeige4.3-33B-Base]), useful for comparison experiments.
+* '''Apache-2.0'''.
+
+== In this project ==
+Estimated 150-step run: ~6 days with [[rtx-pro-6000|PRO 6000s]] generating and [[dgx-spark|Sparks]] training, or ~2.4 days on the PRO 6000s alone. See [[run-time]].
+
+== Further reading ==
+{{card https://huggingface.co/Nanbeige/Nanbeige4.3-33B}}

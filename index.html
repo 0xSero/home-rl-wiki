@@ -1,0 +1,724 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Home RL Wiki</title>
+<style>
+:root{
+  --bg:#ffffff;--fg:#202122;--muted:#54595d;--subtle:#72777d;--rule:#a2a9b1;--rule2:#c8ccd1;--soft:#f8f9fa;--box:#eaecf0;
+  --link:#3366cc;--visited:#795cb2;--new:#d73333;--ext:#3366cc;--hi:#fef6e7;--del:#ffe49c;--ins:#a3d3ff;--accent:#3366cc;
+  --good:#14866d;--bad:#d73333;--warn:#ac6600;--mask:#c8ccd1;
+  --serif:'Linux Libertine','Georgia','Times',serif;
+  --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Lato,Helvetica,Arial,sans-serif;
+  --mono:Menlo,Consolas,'Liberation Mono',monospace;
+  --fs:14px;--width:1596px;
+}
+:root.dark{--bg:#101418;--fg:#eaecf0;--muted:#a2a9b1;--subtle:#a2a9b1;--rule:#72777d;--rule2:#54595d;--soft:#1b1f23;--box:#27292d;
+  --link:#88a3e8;--visited:#a799cd;--new:#fd7865;--ext:#88a3e8;--hi:#3a2f13;--del:#5c4a12;--ins:#173a5e;--accent:#88a3e8;--good:#3fbf9b;--bad:#fd7865;--warn:#e3a33b;--mask:#4a5158;color-scheme:dark}
+:root.fs-small{--fs:13px} :root.fs-large{--fs:16px} :root.wide{--width:100%}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0;background:var(--bg);color:var(--fg)}
+body{font-family:var(--sans);font-size:var(--fs);line-height:1.6}
+a{color:var(--link);text-decoration:none} a:hover{text-decoration:underline} a.new{color:var(--new)}
+a.external::after{content:"";display:inline-block;width:.75em;height:.75em;margin-left:2px;background:currentColor;
+  -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M6 1h5v5L8.86 3.85 4.7 8 4 7.3l4.15-4.16zM2 3h2v1H2v6h6V8h1v2a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1'/%3E%3C/svg%3E") center/contain no-repeat;
+  mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M6 1h5v5L8.86 3.85 4.7 8 4 7.3l4.15-4.16zM2 3h2v1H2v6h6V8h1v2a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1'/%3E%3C/svg%3E") center/contain no-repeat;opacity:.8}
+code,pre,textarea.src{font-family:var(--mono)}
+code{background:var(--soft);border:1px solid var(--box);border-radius:2px;padding:1px 4px;font-size:.88em}
+button,input,select,textarea{font:inherit;color:var(--fg)}
+.btn{background:var(--soft);border:1px solid var(--rule);border-radius:2px;padding:5px 12px;cursor:pointer;font-weight:600;font-size:.92em}
+.btn:hover{background:var(--box)} .btn.primary{background:var(--accent);border-color:var(--accent);color:var(--bg)}
+.btn:disabled{opacity:.5;cursor:default}
+:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+
+/* header */
+.hdr{max-width:var(--width);margin:0 auto;display:flex;align-items:center;gap:16px;padding:8px 24px;height:56px}
+.iconbtn{background:none;border:0;padding:6px;cursor:pointer;border-radius:2px;color:var(--fg);display:flex}
+.iconbtn:hover{background:var(--box)}
+.logo{display:flex;align-items:center;gap:10px;color:var(--fg)} .logo:hover{text-decoration:none}
+.wordmark{font-family:var(--serif);font-size:1.45em;line-height:1;letter-spacing:.01em}
+.tagline{font-size:.72em;color:var(--muted);letter-spacing:.04em;margin-top:3px}
+.search{position:relative;flex:0 1 480px;margin-left:12px;display:flex}
+.search input{flex:1;min-width:0;border:1px solid var(--rule);border-right:0;border-radius:2px 0 0 2px;padding:6px 8px 6px 32px;background:var(--bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20' fill='%2372777d'%3E%3Cpath d='M12.2 13.6a7 7 0 1 1 1.4-1.4l5.4 5.4-1.4 1.4zM3 8a5 5 0 1 0 10 0A5 5 0 0 0 3 8'/%3E%3C/svg%3E") 8px center/16px no-repeat}
+.search button{border:1px solid var(--rule);background:var(--soft);padding:0 12px;border-radius:0 2px 2px 0;cursor:pointer;font-weight:600}
+.sugg{position:absolute;top:100%;left:0;right:0;background:var(--bg);border:1px solid var(--rule);box-shadow:0 2px 6px rgba(0,0,0,.15);z-index:50}
+.sugg a{display:block;padding:6px 10px;color:var(--fg)} .sugg a:hover,.sugg a.sel{background:var(--box);text-decoration:none}
+.sugg a b{display:block;font-weight:600} .sugg a small{color:var(--muted);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sugg .all{border-top:1px solid var(--box);color:var(--link)}
+.hdr .right{margin-left:auto;display:flex;gap:4px;align-items:center;font-size:.9em}
+.dropdown{position:relative}
+.menu{position:absolute;top:100%;background:var(--bg);border:1px solid var(--rule2);box-shadow:0 2px 6px rgba(0,0,0,.2);z-index:40;min-width:220px;padding:6px 0;font-size:.92em}
+.menu.left{left:0} .menu.right{right:0}
+.menu h4{margin:6px 14px 2px;font-size:.78em;color:var(--muted);text-transform:none;font-weight:600}
+.menu a,.menu label{display:block;padding:4px 14px;color:var(--link)} .menu label{color:var(--fg);cursor:pointer}
+.menu hr{border:0;border-top:1px solid var(--box);margin:6px 0}
+
+/* page layout (Vector 2022) */
+.page{max-width:var(--width);margin:0 auto;padding:0 24px;display:grid;grid-template-columns:200px minmax(0,1fr);gap:24px}
+.page.notoc{grid-template-columns:minmax(0,1fr)}
+.side{position:sticky;top:8px;align-self:start;max-height:calc(100vh - 16px);overflow:auto;padding-top:22px;font-size:.88em}
+.side .h{font-weight:bold;margin:0 0 6px;padding-bottom:4px;border-bottom:1px solid var(--box);display:flex;justify-content:space-between}
+.side ul{list-style:none;margin:0;padding:0} .side li{margin:0} .side li a{display:block;padding:3px 0;color:var(--link)}
+.side li.l3 a{padding-left:12px;font-size:.95em} .side li.on>a{color:var(--fg);font-weight:bold}
+.mainmenu-pinned{margin-bottom:18px}
+article{min-width:0;padding-bottom:40px}
+.titlebar{display:flex;align-items:flex-end;justify-content:space-between;border-bottom:1px solid var(--rule);margin-top:14px;gap:12px;flex-wrap:wrap}
+h1.ftitle{font-family:var(--serif);font-weight:normal;font-size:1.8em;line-height:1.375;margin:0 0 2px;word-wrap:break-word}
+.tabs{display:flex;justify-content:space-between;flex-wrap:wrap;font-size:.92em;border-bottom:1px solid var(--rule2);margin-bottom:8px}
+.tabs .grp{display:flex;gap:2px}
+.tabs a,.tabs .tab{padding:7px 8px 6px;color:var(--link);border-bottom:2px solid transparent;cursor:pointer;background:none;border-top:0;border-left:0;border-right:0;font-size:inherit}
+.tabs a.on{color:var(--fg);border-bottom-color:var(--fg)} .tabs a.newtab{color:var(--new)}
+.tabs a:hover{text-decoration:none;border-bottom-color:var(--rule)}
+.siteSub{font-size:.88em;color:var(--muted);margin:6px 0 10px}
+.contentSub{font-size:.88em;color:var(--muted);margin:-6px 0 10px}
+
+/* content */
+.mw h2{font-family:var(--serif);font-weight:normal;font-size:1.5em;line-height:1.375;border-bottom:1px solid var(--rule);margin:1em 0 .25em;padding:0;overflow:hidden}
+.mw h3{font-size:1.2em;font-weight:bold;margin:.3em 0 0;padding-top:.5em;line-height:1.6}
+.mw h2 .editsec,.mw h3 .editsec{font-family:var(--sans);font-size:.6em;color:var(--muted);margin-left:.8em;font-weight:normal;white-space:nowrap}
+.mw h3 .editsec{font-size:.75em}
+.mw p{margin:.5em 0} .mw ul,.mw ol{margin:.3em 0 .5em 1.6em;padding:0} .mw li{margin-bottom:.1em}
+.mw::after{content:"";display:block;clear:both}
+.mw table.wikitable{border-collapse:collapse;background:var(--soft);color:var(--fg);border:1px solid var(--rule);margin:1em 0;font-size:.95em}
+.mw table.wikitable th,.mw table.wikitable td{border:1px solid var(--rule);padding:.25em .5em;vertical-align:top}
+.mw table.wikitable th{background:var(--box);text-align:center}
+td.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.tw{overflow-x:auto;max-width:100%}
+.ok{color:var(--good)} .no{color:var(--bad)} .mid{color:var(--warn)}
+.cell-ok{background:color-mix(in srgb,var(--good) 16%,var(--bg))!important} .cell-mid{background:color-mix(in srgb,var(--warn) 16%,var(--bg))!important} .cell-no{background:var(--bg)!important;color:var(--muted)}
+.infobox{float:right;clear:right;width:22em;margin:.5em 0 1em 1.4em;border:1px solid var(--rule);background:var(--soft);font-size:88%;line-height:1.5;border-spacing:3px;padding:.2em}
+.infobox caption{font-size:125%;font-weight:bold;padding:.2em;text-align:center}
+.infobox th{text-align:left;vertical-align:top;padding:.1em .4em;width:38%}
+.infobox td{vertical-align:top;padding:.1em .4em}
+.infobox .above{text-align:center;background:var(--box);font-weight:bold}
+.hatnote{font-style:italic;padding-left:1.6em;margin-bottom:.5em}
+.ambox{border:1px solid var(--rule);border-left:10px solid var(--accent);background:var(--soft);padding:.4em .8em;margin:0 0 .8em;font-size:.95em}
+.ambox.warn{border-left-color:var(--warn)}
+.thumb{float:right;clear:right;margin:.5em 0 1.2em 1.4em;width:342px;max-width:100%;border:1px solid var(--rule2);background:var(--soft);padding:3px}
+.thumb.left{float:left;margin:.5em 1.4em 1.2em 0}
+.thumb .yt{position:relative;width:100%;aspect-ratio:16/9;background:#000}
+.thumb .yt iframe,.thumb .yt button{position:absolute;inset:0;width:100%;height:100%;border:0}
+.thumb .yt button{cursor:pointer;background:#000 center/cover no-repeat;padding:0}
+.thumb .yt button::after{content:"";position:absolute;left:50%;top:50%;width:62px;height:44px;margin:-22px 0 0 -31px;border-radius:12px;background:rgba(220,0,0,.92) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M8 5v14l11-7z'/%3E%3C/svg%3E") center/26px no-repeat}
+.thumbcaption{font-size:88%;line-height:1.45;padding:4px 3px 2px}
+.vgal{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px;margin:.6em 0 1em;clear:both}
+.vgal .thumb{float:none;width:auto;margin:0!important}
+.thumbcaption .meta{color:var(--muted)}
+.fig{clear:both;border:1px solid var(--rule2);background:var(--soft);padding:4px;margin:.8em 0;overflow-x:auto}
+.fig svg{display:block;width:100%;height:auto;min-width:560px}
+.fig .cap{font-size:88%;padding:4px 3px 0}
+.cite-paper{border:1px solid var(--rule2);background:var(--soft);padding:.6em .9em;margin:.8em 0;font-size:.94em;clear:none;overflow:hidden}
+.cite-paper .pt{font-weight:bold} .cite-paper .pa{color:var(--muted);font-size:.92em}
+.cite-paper details{margin-top:.3em} .cite-paper summary{cursor:pointer;color:var(--link)}
+.cite-paper blockquote{margin:.4em 0 0;padding:0 0 0 .8em;border-left:3px solid var(--rule2);color:var(--fg)}
+.lcard{display:flex;gap:12px;border:1px solid var(--rule2);background:var(--soft);margin:.8em 0;overflow:hidden;color:var(--fg);max-width:720px}
+.lcard:hover{text-decoration:none;border-color:var(--rule)}
+.lcard img{width:180px;object-fit:cover;flex:none;background:var(--box)}
+.lcard .b{padding:.5em .8em .6em;min-width:0} .lcard .s{font-size:.82em;color:var(--muted)} .lcard .t{font-weight:bold;color:var(--link)} .lcard .d{font-size:.9em;margin-top:.2em}
+.furtherbox{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px}
+.furtherbox .lcard{margin:0;flex-direction:column} .furtherbox .lcard img{width:100%;height:140px}
+.toc-inline{display:none}
+sup.reference{font-size:.75em;line-height:1;vertical-align:super;white-space:nowrap}
+ol.references{font-size:90%;margin-left:2em} ol.references li.target{background:var(--hi)}
+ol.references .up{font-weight:bold;margin-right:.3em}
+.catlinks{border:1px solid var(--rule);background:var(--soft);padding:.4em .8em;margin-top:1.6em;font-size:.92em;clear:both}
+.catlinks a{margin:0 .25em} .catlinks a+a::before{content:"| ";color:var(--muted);margin-right:.25em}
+.footer{max-width:var(--width);margin:0 auto;padding:16px 24px 40px;border-top:1px solid var(--rule2);font-size:.82em;color:var(--fg)}
+.footer ul{list-style:none;margin:6px 0 0;padding:0;display:flex;gap:14px;flex-wrap:wrap}
+
+/* main page */
+.mp-top{border:1px solid var(--rule2);background:var(--soft);padding:12px 16px;text-align:center;margin:10px 0 16px}
+.mp-top .w{font-family:var(--serif);font-size:1.9em;line-height:1.2} .mp-top .s{font-size:.95em;color:var(--fg)}
+.mp-cols{display:grid;grid-template-columns:minmax(0,55fr) minmax(0,45fr);gap:16px}
+.mp-box{border:1px solid var(--rule2);margin-bottom:16px;overflow:hidden}
+.mp-box h2.mph{margin:0;padding:.2em .6em;font-family:var(--sans);font-size:1.05em;font-weight:bold;border:0;border-bottom:1px solid var(--rule2);background:var(--box);line-height:1.6}
+.mp-box .in{padding:.4em .8em .6em} .mp-box.blue h2.mph{background:color-mix(in srgb,var(--accent) 18%,var(--bg))}
+.mp-box.green h2.mph{background:color-mix(in srgb,var(--good) 18%,var(--bg))}
+.mp-box .more{text-align:right;font-weight:bold;font-size:.92em}
+.mp-box .thumb{width:240px}
+
+/* svg */
+svg text{fill:var(--fg);font-family:var(--sans);font-size:12px} svg .t-m{fill:var(--muted);font-size:11px} svg .t-b{font-weight:600}
+svg .box{fill:var(--bg);stroke:var(--rule);stroke-width:1} svg .box-hi{fill:var(--bg);stroke:var(--accent);stroke-width:2}
+svg .ln{stroke:var(--muted);stroke-width:1.4;fill:none} svg .ln-hi{stroke:var(--accent);stroke-width:1.8;fill:none}
+svg .f-train{fill:var(--accent)} svg .f-mask{fill:var(--mask)} svg .f-good{fill:var(--good)} svg .f-bad{fill:var(--bad)} svg .f-soft{fill:var(--box);stroke:var(--rule)}
+svg .ax{stroke:var(--rule);stroke-width:1} svg .ah{fill:var(--muted)} svg .ah-hi{fill:var(--accent)}
+
+/* widgets */
+.calc{border:1px solid var(--rule2);padding:10px 12px;background:var(--soft);margin:10px 0;clear:both}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:8px 14px}
+.grid label{display:flex;flex-direction:column;font-size:.85em;color:var(--muted);gap:2px}
+.grid input,.grid select,form.q input[type=text],form.q textarea,.editor input[type=text],.addtopic input,.addtopic textarea{border:1px solid var(--rule);border-radius:2px;padding:4px 6px;background:var(--bg);min-width:0}
+.res{margin-top:10px} .bar{display:flex;height:12px;border:1px solid var(--rule);margin:6px 0;max-width:520px} .bar span{display:block;height:100%}
+.legend{font-size:.85em;color:var(--muted)} .legend i{display:inline-block;width:10px;height:10px;margin:0 4px 0 10px;vertical-align:-1px}
+form.q fieldset{border:1px solid var(--rule2);margin:0 0 10px;padding:6px 12px 10px;background:var(--soft)}
+form.q legend{font-weight:bold;padding:0 4px} form.q .why{font-size:.85em;color:var(--muted);margin:0 0 4px}
+form.q label{display:block;margin:2px 0} form.q input[type=text],form.q textarea{width:100%} form.q textarea{min-height:64px}
+.savebar{position:sticky;bottom:0;background:var(--bg);border-top:1px solid var(--rule);padding:8px 0;display:flex;gap:10px;align-items:center}
+.status{font-size:.88em;color:var(--muted)}
+
+/* editor */
+.editor .toolbar{display:flex;gap:2px;flex-wrap:wrap;border:1px solid var(--rule2);border-bottom:0;background:var(--soft);padding:3px}
+.editor .toolbar button{background:none;border:1px solid transparent;border-radius:2px;padding:2px 8px;cursor:pointer;font-size:.9em}
+.editor .toolbar button:hover{border-color:var(--rule);background:var(--bg)}
+.editor textarea.src{width:100%;min-height:440px;border:1px solid var(--rule2);padding:6px 8px;font-size:.86em;line-height:1.5;background:var(--bg);resize:vertical}
+.editor .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:8px 0}
+.editor .row input[type=text]{flex:1;min-width:200px}
+.editor .help{font-size:.85em;color:var(--muted)}
+.previewnote{border:1px solid var(--warn);background:var(--hi);padding:.4em .8em;margin:.6em 0;font-size:.92em}
+table.diff{width:100%;border-collapse:collapse;table-layout:fixed;font-size:.84em;font-family:var(--mono);margin:.6em 0}
+table.diff td{vertical-align:top;padding:2px 6px;white-space:pre-wrap;word-wrap:break-word;border:1px solid transparent}
+table.diff td.ln{width:2em;color:var(--muted);text-align:right;font-family:var(--sans);user-select:none}
+table.diff td.d{background:color-mix(in srgb,var(--del) 55%,var(--bg));border-left:4px solid #ffe49c}
+table.diff td.a{background:color-mix(in srgb,var(--ins) 45%,var(--bg));border-left:4px solid #a3d3ff}
+table.diff td.c{color:var(--muted)} table.diff th{font-family:var(--sans);text-align:left;padding:4px 6px;background:var(--soft);border:1px solid var(--rule2)}
+ul.hist{list-style:none;padding:0;margin:.5em 0;font-size:.92em} ul.hist li{padding:3px 0;border-bottom:1px solid var(--box)}
+.plus{color:var(--good);font-weight:bold} .minus{color:var(--bad);font-weight:bold} .zero{color:var(--muted)}
+ul.rc{list-style:none;padding:0;margin:0 0 1em;font-size:.92em} ul.rc li{padding:2px 0}
+h4.day{margin:1em 0 .2em;font-size:1em}
+.searchresults li{list-style:none;margin:0 0 1em} .searchresults .sr-t{font-size:1.1em} .searchresults .sr-m{color:var(--good);font-size:.85em}
+.searchresults .sr-s{font-size:.95em} .searchresults mark{background:var(--hi);color:inherit;font-weight:bold}
+.addtopic{border:1px solid var(--rule2);background:var(--soft);padding:10px 12px;margin:1em 0}
+.addtopic input,.addtopic textarea{width:100%;margin:4px 0} .addtopic textarea{min-height:110px}
+.talkhead{border:1px solid var(--rule2);background:var(--soft);padding:.5em .9em;margin-bottom:1em;font-size:.92em}
+
+/* hover previews */
+.popup{position:absolute;z-index:60;width:340px;background:var(--bg);border:1px solid var(--rule2);box-shadow:0 30px 90px -20px rgba(0,0,0,.3),0 0 1px rgba(0,0,0,.3);font-size:.92em;line-height:1.5}
+.popup .pb{padding:12px 14px;max-height:220px;overflow:hidden;position:relative}
+.popup .pb::after{content:"";position:absolute;left:0;right:0;bottom:0;height:40px;background:linear-gradient(transparent,var(--bg))}
+.popup .pt{font-weight:bold;margin-bottom:4px}
+.popup .pf{border-top:1px solid var(--box);padding:6px 14px;font-size:.88em;color:var(--muted)}
+
+@media (max-width:1000px){.page{grid-template-columns:minmax(0,1fr)}.side{display:none}.toc-inline{display:block;border:1px solid var(--rule2);background:var(--soft);padding:6px 12px;margin:8px 0;font-size:.92em}.toc-inline ol{margin:4px 0 0 1.2em}.mp-cols{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:640px){.hdr{padding:8px 12px;gap:8px}.page{padding:0 12px}.tagline,.hdr .right .lbl{display:none}.infobox,.thumb,.thumb.left{float:none;width:100%;margin:.6em 0}.lcard{flex-direction:column}.lcard img{width:100%;height:140px}.search{margin-left:0}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="ah"/></marker>
+<marker id="ahh" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="ah-hi"/></marker>
+</defs></svg>
+
+<header>
+<div class="hdr">
+  <div class="dropdown">
+    <button class="iconbtn" id="mmBtn" aria-label="Main menu" aria-expanded="false"><svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M1 3v2h18V3zm0 8h18V9H1zm0 6h18v-2H1z"/></svg></button>
+    <div class="menu left" id="mm" hidden>
+      <h4>Main menu</h4>
+      <a href="/wiki/Main_Page">Main page</a><a href="/wiki/learning-path">Start here</a><a href="/wiki/Special:AllPages">Contents</a>
+      <a href="/wiki/Special:RecentChanges">Recent changes</a><a href="/wiki/Special:Random">Random article</a><a href="/wiki/questions">Questions for you</a>
+      <hr><h4>Categories</h4><div id="mmCats"></div>
+      <hr><h4>Contribute</h4><a href="/wiki/about">Help: editing</a><a href="/wiki/Special:NewPage">Create a page</a>
+    </div>
+  </div>
+  <a class="logo" href="/wiki/Main_Page">
+    <svg width="40" height="40" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="18" fill="none" stroke="var(--fg)" stroke-width="1.2"/><circle cx="20" cy="20" r="11" fill="none" stroke="var(--rule)" stroke-width="1"/><path d="M20 4 A16 16 0 1 1 6.1 28" fill="none" stroke="var(--accent)" stroke-width="2.4"/><path d="M6.1 28 l-2.3 -6 l6.1 1.9z" fill="var(--accent)"/><text x="20" y="24.5" text-anchor="middle" style="font-family:var(--serif);font-size:12px;fill:var(--fg)">RL</text></svg>
+    <span><div class="wordmark">Home RL Wiki</div><div class="tagline">The post-training reference</div></span>
+  </a>
+  <form class="search" id="searchForm" role="search" autocomplete="off">
+    <input id="q" type="search" placeholder="Search Home RL Wiki" aria-label="Search Home RL Wiki" accesskey="f">
+    <button type="submit">Search</button>
+    <div class="sugg" id="sugg" hidden></div>
+  </form>
+  <div class="right">
+    <div class="dropdown">
+      <button class="iconbtn" id="apBtn" aria-label="Appearance" aria-expanded="false"><svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M10 1a9 9 0 1 0 0 18 2 2 0 0 0 1.5-3.3 1 1 0 0 1 .8-1.7H14a5 5 0 0 0 5-5c0-4.4-4-8-9-8m-5.5 9a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3m3-4a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3m5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3m3 4a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3"/></svg><span class="lbl" style="margin-left:4px">Appearance</span></button>
+      <div class="menu right" id="ap" hidden>
+        <h4>Text</h4>
+        <label><input type="radio" name="ap-fs" value="small"> Small</label><label><input type="radio" name="ap-fs" value="standard"> Standard</label><label><input type="radio" name="ap-fs" value="large"> Large</label>
+        <hr><h4>Width</h4>
+        <label><input type="radio" name="ap-w" value="standard"> Standard</label><label><input type="radio" name="ap-w" value="wide"> Wide</label>
+        <hr><h4>Color</h4>
+        <label><input type="radio" name="ap-c" value="auto"> Automatic</label><label><input type="radio" name="ap-c" value="light"> Light</label><label><input type="radio" name="ap-c" value="dark"> Dark</label>
+      </div>
+    </div>
+  </div>
+</div>
+</header>
+
+<div class="page" id="page">
+  <nav class="side" id="side" aria-label="Contents"></nav>
+  <article>
+    <div class="titlebar"><h1 class="ftitle" id="ftitle"></h1></div>
+    <div class="tabs" id="tabs"></div>
+    <div class="siteSub" id="siteSub">From Home RL Wiki</div>
+    <div class="contentSub" id="contentSub"></div>
+    <div class="mw" id="content"></div>
+    <div id="catlinks"></div>
+  </article>
+</div>
+<footer class="footer" id="footer"></footer>
+<div class="popup" id="popup" hidden></div>
+
+<script>
+(function(){
+"use strict";
+var $=function(id){return document.getElementById(id);};
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+var CFG=window.WIKI_CFG||{}, BASE=CFG.base||'', STATIC=!!CFG.static, REPO=CFG.repo||'', BRANCH=CFG.branch||'main';
+var PAGES={}, ANSWERS=null, ME='Sero';
+function fileOf(slug){return slug.replace(':','__');}
+function ghEdit(slug){return 'https://github.com/'+REPO+'/edit/'+BRANCH+'/content/pages/'+encodeURIComponent(fileOf(slug))+'.wiki';}
+function ghNew(slug){var t=slug.indexOf('talk:')===0?'Talk:'+title(slug.slice(5)):title(slug);
+  return 'https://github.com/'+REPO+'/new/'+BRANCH+'/content/pages?filename='+encodeURIComponent(fileOf(slug)+'.wiki')+'&value='+encodeURIComponent('title: '+t+'\ncats: \norigin: user\n---\n');}
+if(BASE){var fixA=function(a){a.setAttribute('href',BASE+a.getAttribute('href'));};
+  var fixIn=function(n){if(n.matches&&n.matches('a[href^="/wiki/"]'))fixA(n);if(n.querySelectorAll)n.querySelectorAll('a[href^="/wiki/"]').forEach(fixA);};
+  fixIn(document.body);new MutationObserver(function(ms){ms.forEach(function(m){m.addedNodes.forEach(function(n){if(n.nodeType===1)fixIn(n);});});}).observe(document.body,{childList:true,subtree:true});}
+var CATS=['Concepts','Algorithms','Hardware','Models','Frameworks','Project','Help'];
+var EXTRA_CATS=['Videos'];
+
+// ---------------- appearance ----------------
+function ls(k,v){try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v);}catch(e){return null;}}
+function applyAppearance(){var r=document.documentElement, fs=ls('ap-fs')||'standard', w=ls('ap-w')||'standard', c=ls('ap-c')||'auto';
+  r.classList.toggle('fs-small',fs==='small');r.classList.toggle('fs-large',fs==='large');r.classList.toggle('wide',w==='wide');
+  var dark=c==='dark'||(c==='auto'&&window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches);r.classList.toggle('dark',dark);
+  [['ap-fs',fs],['ap-w',w],['ap-c',c]].forEach(function(p){var el=document.querySelector('input[name="'+p[0]+'"][value="'+p[1]+'"]');if(el)el.checked=true;});}
+applyAppearance();
+if(window.matchMedia)matchMedia('(prefers-color-scheme: dark)').addEventListener('change',applyAppearance);
+document.querySelectorAll('#ap input').forEach(function(i){i.addEventListener('change',function(){ls(i.name,i.value);applyAppearance();});});
+function toggleMenu(btn,menu){var open=menu.hidden;document.querySelectorAll('.menu').forEach(function(m){m.hidden=true;});document.querySelectorAll('[aria-expanded]').forEach(function(b){b.setAttribute('aria-expanded','false');});
+  menu.hidden=!open;btn.setAttribute('aria-expanded',open?'true':'false');}
+$('mmBtn').onclick=function(e){e.stopPropagation();toggleMenu(this,$('mm'));};
+$('apBtn').onclick=function(e){e.stopPropagation();toggleMenu(this,$('ap'));};
+document.addEventListener('click',function(e){if(!e.target.closest('.dropdown')){document.querySelectorAll('.menu').forEach(function(m){m.hidden=true;});}});
+
+// ---------------- figures ----------------
+var FIG={};
+FIG.stages='<svg viewBox="0 0 760 140" role="img" aria-label="Pretraining, then SFT, then RL"><rect class="box" x="10" y="16" width="220" height="100" rx="3"/><text x="24" y="40" class="t-b">Pretraining</text><text x="24" y="62">Predict the next token over</text><text x="24" y="78">trillions of tokens.</text><text x="24" y="102" class="t-m">Months, thousands of GPUs. Done for us.</text><line class="ln" x1="232" y1="66" x2="268" y2="66" marker-end="url(#ah)"/><rect class="box" x="270" y="16" width="220" height="100" rx="3"/><text x="284" y="40" class="t-b">Supervised fine-tuning</text><text x="284" y="62">Copy worked examples:</text><text x="284" y="78">"here is the ideal answer".</text><text x="284" y="102" class="t-m">Teaches format and style.</text><line class="ln-hi" x1="492" y1="66" x2="528" y2="66" marker-end="url(#ahh)"/><rect class="box-hi" x="530" y="16" width="220" height="100" rx="3"/><text x="544" y="40" class="t-b">Reinforcement learning</text><text x="544" y="62">Try, get graded, do more of</text><text x="544" y="78">what scored well.</text><text x="544" y="102" class="t-m">Teaches reliability. Our stage.</text></svg><div class="cap">The three stages of training a modern language model. Labs do all three; we add one short RL stage aimed at our own tasks.</div>';
+FIG.loop='<svg viewBox="0 0 760 250" role="img" aria-label="RL loop"><rect class="box-hi" x="40" y="30" width="230" height="74" rx="3"/><text x="54" y="54" class="t-b">1. Policy</text><text x="54" y="74">The model + its LoRA adapter.</text><text x="54" y="92" class="t-m">The thing being trained.</text><rect class="box" x="490" y="30" width="230" height="74" rx="3"/><text x="504" y="54" class="t-b">2. Rollouts</text><text x="504" y="74">Attempt each task ~8 times</text><text x="504" y="92">in a headless browser.</text><rect class="box" x="490" y="150" width="230" height="74" rx="3"/><text x="504" y="174" class="t-b">3. Reward</text><text x="504" y="194">A verifier checks the end state.</text><text x="504" y="212" class="t-m">1 = done, 0 = not done.</text><rect class="box" x="40" y="150" width="230" height="74" rx="3"/><text x="54" y="174" class="t-b">4. Update</text><text x="54" y="194">Nudge LoRA toward attempts</text><text x="54" y="212">that beat their group average.</text><line class="ln" x1="272" y1="67" x2="486" y2="67" marker-end="url(#ah)"/><text x="300" y="58" class="t-m">generate actions</text><line class="ln" x1="605" y1="106" x2="605" y2="146" marker-end="url(#ah)"/><text x="612" y="130" class="t-m">trajectories</text><line class="ln" x1="488" y1="187" x2="274" y2="187" marker-end="url(#ah)"/><text x="300" y="178" class="t-m">score per attempt</text><line class="ln-hi" x1="155" y1="148" x2="155" y2="108" marker-end="url(#ahh)"/><text x="162" y="132" class="t-m">new adapter (MBs)</text></svg><div class="cap">One trip around the loop is one step. A narrow skill typically needs 100–300 steps.</div>';
+FIG.grpo=(function(){var r=[1,0,0,1,0,1,0,0],mean=.375,s=['<svg viewBox="0 0 760 270" role="img" aria-label="Eight attempts, advantages around the mean"><text x="20" y="22" class="t-b">Task: "Open the 3 release pages, report each latest version" · 8 attempts · 3 succeed · group mean 0.375</text><line class="ax" x1="90" y1="140" x2="740" y2="140"/><text x="20" y="64" class="t-m">+0.625</text><text x="20" y="144" class="t-m">0</text><text x="20" y="190" class="t-m">−0.375</text>'];
+  r.forEach(function(v,i){var a=v-mean,x=110+i*78,h=Math.abs(a)*120,y=a>0?140-h:140;s.push('<rect x="'+x+'" y="'+y+'" width="44" height="'+h+'" class="'+(a>0?'f-good':'f-bad')+'"/><text x="'+(x+2)+'" y="'+(a>0?y-6:y+h+14)+'" class="t-m">'+(a>0?'+':'')+a.toFixed(3)+'</text><text x="'+(x+2)+'" y="222">#'+(i+1)+' R='+v+'</text>');});
+  s.push('<text x="90" y="248" class="t-m">Green beat the average, so their tokens become more likely. Red fell short, so theirs become less likely.</text><text x="90" y="264" class="t-m">If all 8 succeed or all 8 fail, every advantage is 0 and the task teaches nothing this step.</text></svg><div class="cap">Group-relative advantages for one task, drawn to scale.</div>');return s.join('');})();
+FIG.rollout='<svg viewBox="0 0 760 165" role="img" aria-label="Token timeline of one rollout"><rect class="f-mask" x="10" y="26" width="80" height="34"/><text x="16" y="48" class="t-m">task</text><rect class="f-train" x="90" y="26" width="60" height="34"/><rect class="f-mask" x="150" y="26" width="150" height="34"/><text x="156" y="48" class="t-m">page text (2k tok)</text><rect class="f-train" x="300" y="26" width="50" height="34"/><rect class="f-mask" x="350" y="26" width="130" height="34"/><text x="356" y="48" class="t-m">page text</text><rect class="f-train" x="480" y="26" width="40" height="34"/><rect class="f-mask" x="520" y="26" width="110" height="34"/><text x="526" y="48" class="t-m">form echo</text><rect class="f-train" x="630" y="26" width="50" height="34"/><rect class="box" x="690" y="26" width="60" height="34"/><text x="698" y="48" class="t-b">R = 1</text><text x="92" y="80" class="t-m">navigate()</text><text x="302" y="80" class="t-m">click(ref)</text><text x="482" y="80" class="t-m">fill()</text><text x="632" y="80" class="t-m">answer</text><text x="692" y="80" class="t-m">verifier</text><rect class="f-train" x="10" y="104" width="14" height="14"/><text x="30" y="116">The model’s own tokens: these get the reward signal (trained).</text><rect class="f-mask" x="10" y="130" width="14" height="14"/><text x="30" y="142">Task and browser observations: read by the model, masked out of the loss.</text></svg><div class="cap">One attempt as a token timeline. Most of it is page text the model reads, which is why context length drives training cost.</div>';
+FIG.lora='<svg viewBox="0 0 760 225" role="img" aria-label="LoRA: frozen W plus B times A"><rect class="f-soft" x="30" y="24" width="160" height="160"/><text x="62" y="98" class="t-b">W (frozen)</text><text x="46" y="118" class="t-m">5120 × 5120 = 26.2M</text><text x="206" y="112" class="t-b" style="font-size:22px">+</text><rect class="f-train" x="240" y="24" width="12" height="160"/><text x="230" y="204" class="t-m">B: 5120×16</text><text x="262" y="112" class="t-b" style="font-size:18px">×</text><rect class="f-train" x="282" y="98" width="160" height="12"/><text x="300" y="90" class="t-m">A: 16×5120</text><text x="300" y="134" class="t-m">B·A = 164k params (0.6%)</text><text x="480" y="44" class="t-b">What this means</text><text x="480" y="68">• The base model file is never written.</text><text x="480" y="90">• The adapter is a separate small file.</text><text x="480" y="112">• Unload it to get exactly the original.</text><text x="480" y="134">• vLLM serves many adapters on one base.</text><text x="480" y="156">• Only the adapter moves between machines</text><text x="480" y="174">  each step (MBs instead of 55+ GB).</text></svg><div class="cap">One weight matrix at Qwen3.8-27B’s width (5120). A rank-16 adapter adds 0.6% of the layer; across a whole model, adapters are typically a few hundred MB.</div>';
+FIG.hw='<svg viewBox="0 0 760 210" role="img" aria-label="Hardware map"><rect class="box" x="20" y="16" width="320" height="170" rx="3"/><text x="34" y="38" class="t-b">pop-os · 4× RTX PRO 6000 (96 GB, 1.8 TB/s)</text><rect class="f-soft" x="34" y="52" width="140" height="56"/><text x="42" y="72" class="t-b">vLLM: policy</text><text x="42" y="90" class="t-m">base + latest LoRA</text><rect class="f-soft" x="186" y="52" width="140" height="56"/><text x="194" y="72" class="t-b">DeepSeek-V4.1-Flash</text><text x="194" y="90" class="t-m">judge / teacher</text><rect class="f-soft" x="34" y="120" width="292" height="52"/><text x="42" y="140" class="t-b">Browser workers</text><text x="42" y="158" class="t-m">headless Chromium + Sitegeist + local fixtures</text><rect class="box-hi" x="430" y="16" width="310" height="170" rx="3"/><text x="444" y="38" class="t-b">4× DGX Spark (128 GB, 273 GB/s)</text><rect class="f-soft" x="444" y="52" width="282" height="56"/><text x="452" y="72" class="t-b">Trainer</text><text x="452" y="90" class="t-m">frozen base + LoRA, GRPO loss, optimizer</text><rect class="f-soft" x="444" y="120" width="282" height="52"/><text x="452" y="140" class="t-b">Small-model experiments</text><text x="452" y="158" class="t-m">1 Spark each: rollouts + training</text><line class="ln" x1="342" y1="76" x2="426" y2="76" marker-end="url(#ah)"/><text x="350" y="68" class="t-m">trajectories</text><line class="ln-hi" x1="426" y1="116" x2="342" y2="116" marker-end="url(#ahh)"/><text x="350" y="134" class="t-m">LoRA (MBs)</text></svg><div class="cap">The split layout. The PRO 6000s generate attempts (generation needs bandwidth); the Sparks train (training needs memory). Only the adapter crosses the network.</div>';
+
+// ---------------- names / urls ----------------
+var SPECIAL={'Special:RecentChanges':'Recent changes','Special:AllPages':'All pages','Special:Random':'Random article','Special:Search':'Search','Special:NewPage':'Create a page','Special:Categories':'Categories'};
+function prettySlug(s){return s.replace(/^talk:/,'').replace(/-/g,' ').replace(/^./,function(c){return c.toUpperCase();});}
+function title(slug){var p=PAGES[slug];if(p)return p.title||prettySlug(slug);if(slug.indexOf('talk:')===0)return 'Talk:'+title(slug.slice(5));return prettySlug(slug);}
+function url(slug,q){return BASE+'/wiki/'+encodeURIComponent(slug==='main'?'Main_Page':slug).replace(/%3A/gi,':')+(q?'?'+q:'');}
+function exists(slug){return !!PAGES[slug]||slug==='main'||!!SPECIAL[slug]||/^Category:/.test(slug)||/^Special:WhatLinksHere\//.test(slug);}
+function lead(slug,max){var p=PAGES[slug];if(!p)return '';var src=p.src.replace(/<ref>[\s\S]*?<\/ref>/g,'').replace(/\{\{[\s\S]*?\}\}/g,'');
+  var paras=src.split(/\n\s*\n/).map(function(b){return b.trim();}).filter(function(b){return b&&!/^[<=*#\u0000|]/.test(b);});
+  return plain(paras[0]||'').slice(0,max||600);}
+function plain(s){return s.replace(/<ref>[\s\S]*?<\/ref>/g,'').replace(/\{\{[\s\S]*?\}\}/g,' ').replace(/<[^>]+>/g,' ').replace(/\[\[([^\]|]+)\|([^\]]+)\]\]/g,'$2').replace(/\[\[([^\]]+)\]\]/g,function(m,a){return title(a.split('#')[0]);}).replace(/\[https?:\/\/\S+\s+([^\]]+)\]/g,'$1').replace(/'{2,3}/g,'').replace(/^=+|=+$/gm,'').replace(/&nbsp;/g,' ').replace(/\s+/g,' ').trim();}
+
+// ---------------- wikitext renderer ----------------
+function inline(s){
+  s=s.replace(/'''(.+?)'''/g,'<b>$1</b>').replace(/''(.+?)''/g,'<i>$1</i>');
+  s=s.replace(/\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g,function(m,target,text){
+    target=target.trim();var cat=target.match(/^:?Category:(.+)$/);
+    if(cat){return '<a href="'+url('Category:'+cat[1])+'">'+(text||'Category:'+esc(cat[1]))+'</a>';}
+    var parts=target.split('#'),slug=parts[0],t=text||title(slug);
+    return '<a href="'+url(slug)+(parts[1]?'#'+parts[1]:'')+'"'+(exists(slug)?' data-preview="'+esc(slug)+'"':' class="new" title="'+esc(title(slug))+' (page does not exist)"')+'>'+t+'</a>';});
+  s=s.replace(/\[(https?:\/\/[^\s\]]+)\s+([^\]]+)\]/g,'<a class="external" href="$1" target="_blank" rel="noopener">$2</a>');
+  return s;
+}
+function catPages(cat){return Object.keys(PAGES).filter(function(s){return s.indexOf('talk:')!==0&&(PAGES[s].cats||[]).indexOf(cat)>=0;}).sort(function(a,b){return title(a).localeCompare(title(b));});}
+var ASYNC=[];
+var TPL={
+  infobox:function(r){var L=r.split('\n'),h='<table class="infobox"><caption>'+esc(L[0].trim())+'</caption>';L.slice(1).forEach(function(l){var i=l.indexOf(':');if(i>0&&!/^https?$/.test(l.slice(0,i).trim()))h+='<tr><th scope="row">'+l.slice(0,i).trim()+'</th><td>'+l.slice(i+1).trim()+'</td></tr>';});return inline(h+'</table>');},
+  main:function(r){return '<div class="hatnote">Main article'+(r.indexOf(',')>0?'s':'')+': '+inline(r.split(',').map(function(x){return '[['+x.trim()+']]';}).join(', '))+'</div>';},
+  see:function(r){return '<div class="hatnote">See also: '+inline(r.split(',').map(function(x){return '[['+x.trim()+']]';}).join(', '))+'</div>';},
+  further:function(r){return '<div class="hatnote">Further information: '+inline(r.split(',').map(function(x){return '[['+x.trim()+']]';}).join(', '))+'</div>';},
+  stub:function(){return '<div class="ambox">This article is a <a href="/wiki/about">stub</a>. You can help Home RL Wiki by <a href="?action=edit" data-action="edit">expanding it</a>.</div>';},
+  note:function(r){return '<div class="ambox">'+inline(r)+'</div>';},
+  estimate:function(){return '<div class="ambox warn">The figures in this article are <b>estimates from first principles</b>, not measurements. They will be replaced with measured numbers.</div>';},
+  fig:function(r){return '<div class="fig">'+(FIG[r.trim()]||'<span class="no">Missing figure '+esc(r)+'</span>')+'</div>';},
+  youtube:function(r){var m=r.trim().match(/^([\w-]{11})\s*([\s\S]*)$/);if(!m)return '<span class="no">Bad video id</span>';var id=m[1],parts=(m[2]||'').split('|'),cap=inline(parts[0]||''),meta=parts[1]?' <span class="meta">('+esc(parts[1].trim())+')</span>':'';
+    return '<figure class="thumb'+(/left/.test(parts[2]||'')?' left':'')+'" style="margin-top:.5em"><div class="yt"><button data-yt="'+id+'" aria-label="Play video" style="background-image:url(https://i.ytimg.com/vi/'+id+'/hqdefault.jpg)"></button></div><figcaption class="thumbcaption">'+cap+meta+' · <a class="external" href="https://www.youtube.com/watch?v='+id+'" target="_blank" rel="noopener">YouTube</a></figcaption></figure>';},
+  videos:function(r){return '<div class="vgal">'+r.trim().split('\n').filter(function(l){return l.trim();}).map(function(l){return TPL.youtube(l.trim());}).join('')+'</div>';},
+  paper:function(r){var id=r.trim().split(/\s+/)[0];ASYNC.push({kind:'paper',id:id});return '<div class="cite-paper" data-paper="'+esc(id)+'"><span class="status">Loading arXiv:'+esc(id)+'…</span></div>';},
+  card:function(r){var u=r.trim();ASYNC.push({kind:'card',url:u});return '<a class="lcard" href="'+esc(u)+'" target="_blank" rel="noopener" data-card="'+esc(u)+'"><div class="b"><div class="s">'+esc(u.replace(/^https?:\/\//,'').split('/')[0])+'</div><div class="t">'+esc(u)+'</div></div></a>';},
+  cards:function(r){return '<div class="furtherbox">'+r.trim().split(/\s+/).map(function(u){return TPL.card(u);}).join('')+'</div>';},
+  calc:function(){return '<div class="calc" id="calcMount"></div>';},
+  matrix:function(){return '<div class="tw" id="matrixMount"></div>';},
+  form:function(){return '<div id="formMount"></div>';},
+  catlist:function(r){return '<ul>'+catPages(r.trim()).map(function(s){return '<li>'+inline('[['+s+']]')+'</li>';}).join('')+'</ul>';},
+  pagecount:function(){return String(Object.keys(PAGES).filter(function(s){return s.indexOf('talk:')!==0;}).length);}
+};
+function slugId(t){return t.replace(/<[^>]+>/g,'').trim().replace(/\s+/g,'_').replace(/[^\w\-.]/g,'');}
+function renderWiki(src,opts){
+  opts=opts||{};var refs=[],ph=[],secN=0;
+  src=src.replace(/<nowiki>([\s\S]*?)<\/nowiki>/g,function(m,t){ph.push(esc(t));return '\u0000'+(ph.length-1)+'\u0000';});
+  src=src.replace(/~~~~/g,'');
+  src=src.replace(/<ref>([\s\S]*?)<\/ref>/g,function(m,t){refs.push(t);var n=refs.length;return '<sup class="reference" id="cite-'+n+'"><a href="#ref-'+n+'" data-ref="'+n+'">['+n+']</a></sup>';});
+  src=src.replace(/\{\{([\s\S]*?)\}\}/g,function(m,inner){var mm=inner.match(/^\s*([a-z]+)\s*([\s\S]*)$/i);
+    if(!mm||!TPL[mm[1].toLowerCase()])return '<span class="no">{{'+esc(inner)+'}}</span>';ph.push(TPL[mm[1].toLowerCase()](mm[2]||''));return '\u0000'+(ph.length-1)+'\u0000';});
+  var L=src.split('\n'),html='',para=[],list=null,raw=false;
+  function endP(){if(para.length){html+='<p>'+para.join(' ')+'</p>';para=[];}}
+  function endL(){if(list){html+='</'+list+'>';list=null;}}
+  L.forEach(function(line){var t=line.trim(),m;
+    if(raw){if(t===''){raw=false;}else{html+=line+'\n';}return;}
+    if(t===''){endP();endL();return;}
+    if((m=t.match(/^(={2,4})\s*(.+?)\s*\1$/))){endP();endL();var lv=Math.min(m[1].length,3);secN++;
+      html+='<h'+lv+' id="'+slugId(m[2])+'">'+m[2]+(opts.noEdit?'':'<span class="editsec">[<a href="?action=edit&amp;section='+secN+'" data-action="edit" data-section="'+secN+'">edit</a>]</span>')+'</h'+lv+'>';return;}
+    if((m=t.match(/^([*#]+)\s+(.*)$/))){endP();var tag=m[1].charAt(0)==='*'?'ul':'ol';if(list!==tag){endL();html+='<'+tag+'>';list=tag;}html+='<li>'+m[2]+'</li>';return;}
+    if(/^[<\u0000]/.test(t)){endP();endL();raw=true;html+=line+'\n';return;}
+    endL();para.push(t);});
+  endP();endL();
+  html=inline(html);
+  if(refs.length)html+='<h2 id="References">References'+(opts.noEdit?'':'')+'</h2><ol class="references">'+refs.map(function(r,i){return '<li id="ref-'+(i+1)+'"><span class="up"><a href="#cite-'+(i+1)+'" data-cite="'+(i+1)+'">^</a></span>'+inline(r)+'</li>';}).join('')+'</ol>';
+  html=html.replace(/\u0000(\d+)\u0000/g,function(m,i){return ph[+i];});
+  html=html.replace(/<table(?![^>]*class=)/g,'<table class="wikitable"').replace(/<table class="wt"/g,'<table class="wikitable"');
+  return html;
+}
+function sanitize(html){try{var d=new DOMParser().parseFromString('<div>'+html+'</div>','text/html');
+  d.querySelectorAll('script,iframe,object,embed,link,meta,style,base,form').forEach(function(n){n.remove();});
+  d.querySelectorAll('*').forEach(function(n){Array.prototype.slice.call(n.attributes).forEach(function(a){var v=a.value.trim().toLowerCase();if(/^on/i.test(a.name)||(/^(href|src|xlink:href|action)$/.test(a.name)&&/^(javascript|vbscript|data:text)/.test(v)))n.removeAttribute(a.name);});});
+  return d.body.firstChild.innerHTML;}catch(e){return esc(html);}}
+// section helpers
+function sections(src){var lines=src.split('\n'),out=[{start:0}],n=0;lines.forEach(function(l,i){if(/^={2,4}\s*.+?\s*=+\s*$/.test(l.trim())){n++;out.push({start:i,title:l.trim().replace(/^=+\s*|\s*=+$/g,'')});}});
+  out.forEach(function(s,i){var nx=out[i+1];s.end=nx?nx.start:lines.length;var lv=i?(lines[s.start].trim().match(/^=+/)[0].length):1;s.lv=lv;
+    if(i){for(var j=i+1;j<out.length;j++){var lv2=lines[out[j].start].trim().match(/^=+/)[0].length;if(lv2<=lv){s.end=out[j].start;break;}s.end=j+1<out.length?out[j+1].start:lines.length;}}});
+  return {lines:lines,secs:out};}
+
+// ---------------- async embeds ----------------
+var CARDCACHE={},PAPERCACHE={};
+var JCACHE={};
+function getJSON(f){return JCACHE[f]||(JCACHE[f]=fetch(BASE+'/api/'+f).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();}));}
+function staticApi(path,opts){var m;
+  if(opts&&opts.method==='POST')return Promise.reject(new Error('this public copy is read-only'));
+  if(path==='all')return getJSON('all.json');
+  if(path==='answers')return Promise.resolve({});
+  if(path==='changes')return getJSON('changes.json');
+  if((m=path.match(/^history\/(.+)$/)))return getJSON('history/'+fileOf(decodeURIComponent(m[1]))+'.json').catch(function(){return [];});
+  if((m=path.match(/^rev\/(.+)\/([^\/]+)$/))){var id=m[2];return getJSON('history/'+fileOf(decodeURIComponent(m[1]))+'.json').then(function(revs){var r=revs.filter(function(x){return x.id===id;})[0];if(!r)throw new Error('revision not found');return r;});}
+  if((m=path.match(/^arxiv\/(.+)$/))){var aid=m[1];return getJSON('arxiv.json').then(function(d){return d[aid]||{error:'missing'};});}
+  if((m=path.match(/^card\?url=(.+)$/))){var u=decodeURIComponent(m[1]);return getJSON('cards.json').then(function(d){return d[u]||{error:'missing'};});}
+  return Promise.reject(new Error('not available'));}
+function api(path,opts){if(STATIC)return staticApi(path,opts);return fetch('/api/'+path,opts).then(function(r){if(!r.ok)return r.json().catch(function(){return {};}).then(function(j){throw new Error(j.error||('HTTP '+r.status));});return r.json();});}
+function runAsync(root){
+  root.querySelectorAll('[data-paper]').forEach(function(el){var id=el.getAttribute('data-paper');
+    (PAPERCACHE[id]||(PAPERCACHE[id]=api('arxiv/'+id))).then(function(p){if(p.error){el.innerHTML='<a class="external" href="https://arxiv.org/abs/'+esc(id)+'" target="_blank" rel="noopener">arXiv:'+esc(id)+'</a> <span class="status">(abstract unavailable offline)</span>';return;}
+      var au=p.authors.length>4?p.authors.slice(0,3).join(', ')+' et al.':p.authors.join(', ');
+      el.innerHTML='<div class="pt"><a class="external" href="'+esc(p.url)+'" target="_blank" rel="noopener">'+esc(p.title)+'</a></div><div class="pa">'+esc(au)+' · '+esc(p.published)+' · arXiv:'+esc(id)+' · <a class="external" href="https://arxiv.org/pdf/'+esc(id)+'" target="_blank" rel="noopener">PDF</a></div><details><summary>Abstract</summary><blockquote>'+esc(p.abstract)+'</blockquote></details>';
+    }).catch(function(){el.innerHTML='<a class="external" href="https://arxiv.org/abs/'+esc(id)+'" target="_blank" rel="noopener">arXiv:'+esc(id)+'</a>';});});
+  root.querySelectorAll('[data-card]').forEach(function(el){var u=el.getAttribute('data-card');
+    (CARDCACHE[u]||(CARDCACHE[u]=api('card?url='+encodeURIComponent(u)))).then(function(c){if(c.error)return;
+      el.innerHTML=(c.image?'<img loading="lazy" alt="" src="'+esc(c.image)+'" onerror="this.remove()">':'')+'<div class="b"><div class="s">'+esc(c.site)+'</div><div class="t">'+esc(c.title)+'</div>'+(c.description?'<div class="d">'+esc(c.description.slice(0,240))+(c.description.length>240?'…':'')+'</div>':'')+'</div>';
+    }).catch(function(){});});
+}
+document.addEventListener('click',function(e){var b=e.target.closest('button[data-yt]');if(!b)return;var id=b.getAttribute('data-yt');
+  var f=document.createElement('iframe');f.src='https://www.youtube-nocookie.com/embed/'+id+'?autoplay=1&rel=0';f.title='YouTube video';f.allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';f.allowFullscreen=true;f.referrerPolicy='strict-origin-when-cross-origin';b.replaceWith(f);});
+
+// ---------------- router ----------------
+var R={};
+function parseLoc(){var path=location.pathname;if(BASE&&path.indexOf(BASE)===0)path=path.slice(BASE.length);
+  var p=decodeURIComponent(path.replace(/^\/(wiki\/?)?/,'').replace(/\.html$/,'').replace(/\/$/,''))||'Main_Page';if(p==='index')p='Main_Page';var q=new URLSearchParams(location.search);
+  var slug=p==='Main_Page'?'main':p;if(/^Talk:/i.test(slug))slug='talk:'+slug.slice(5);
+  return {slug:slug,action:q.get('action')||'view',section:q.get('section'),diff:q.get('diff'),oldid:q.get('oldid'),search:q.get('search')||'',hash:location.hash.slice(1)};}
+function go(href,replace){if(replace)history.replaceState(null,'',href);else history.pushState(null,'',href);render();}
+window.addEventListener('popstate',render);
+document.addEventListener('click',function(e){
+  if(e.defaultPrevented||e.button!==0||e.metaKey||e.ctrlKey||e.shiftKey||e.altKey)return;
+  var a=e.target.closest('a');if(!a)return;
+  if(a.hasAttribute('data-ref')||a.hasAttribute('data-cite')){e.preventDefault();var id=a.getAttribute('href').slice(1),el=document.getElementById(id);if(el){el.scrollIntoView({block:'center',behavior:'smooth'});document.querySelectorAll('ol.references li.target').forEach(function(x){x.classList.remove('target');});if(el.tagName==='LI')el.classList.add('target');}return;}
+  if(a.hasAttribute('data-action')){e.preventDefault();var s=a.getAttribute('data-section');go(url(R.slug,'action='+a.getAttribute('data-action')+(s?'&section='+s:'')));return;}
+  var h=a.getAttribute('href')||'';
+  if(h.charAt(0)==='#'){e.preventDefault();var t=document.getElementById(decodeURIComponent(h.slice(1)));if(t){t.scrollIntoView({behavior:'smooth'});history.replaceState(null,'',h);}return;}
+  if(BASE&&h.indexOf('/wiki/')===0)h=BASE+h;
+  if(h.indexOf(BASE+'/wiki/')===0||h.indexOf('?')===0){e.preventDefault();hidePopup();go(h.charAt(0)==='?'?url(R.slug,h.slice(1)):h);}
+});
+
+function setChrome(o){ // o: {title, tabs, sub, toc, foot, cats, contentSub}
+  $('ftitle').innerHTML=o.title;document.title=o.titleText+' - Home RL Wiki';
+  $('tabs').innerHTML=o.tabs||'';$('siteSub').hidden=!o.sub;$('contentSub').innerHTML=o.contentSub||'';
+  $('catlinks').innerHTML=o.cats||'';$('footer').innerHTML=o.foot||defaultFoot();
+  var side=$('side');side.innerHTML=o.toc||'';$('page').classList.toggle('notoc',!o.toc);
+}
+function defaultFoot(at){return (at?'This page was last edited on '+fmtDate(at)+'.':'')+'<ul><li><a href="/wiki/about">About Home RL Wiki</a></li><li><a href="/wiki/Special:RecentChanges">Recent changes</a></li><li><a href="/wiki/Special:AllPages">All pages</a></li><li>'+(STATIC?'<a class="external" href="https://github.com/'+REPO+'" target="_blank" rel="noopener">Source on GitHub</a></li><li>Read-only public copy':'Content is stored on this Mac in <code>~/training-data-rl/wiki/content/</code>')+'</li></ul>';}
+function fmtDate(iso){try{var d=new Date(iso);return d.getUTCHours().toString().padStart(2,'0')+':'+d.getUTCMinutes().toString().padStart(2,'0')+', '+d.getUTCDate()+' '+d.toLocaleString('en-GB',{month:'long',timeZone:'UTC'})+' '+d.getUTCFullYear()+' (UTC)';}catch(e){return iso;}}
+function tabsFor(slug,action){
+  var base=slug.indexOf('talk:')===0?slug.slice(5):slug, talk='talk:'+base, isTalk=slug.indexOf('talk:')===0;
+  var art='<a href="'+url(base)+'" class="'+(!isTalk?'on':'')+'">'+(base==='main'?'Main Page':'Article')+'</a>';
+  var tk='<a href="'+url(talk)+'" class="'+(isTalk?'on ':'')+(PAGES[talk]?'':'newtab')+'">Talk</a>';
+  var exist=!!PAGES[slug]||slug==='main';
+  var r='<a href="'+url(slug)+'" class="'+(action==='view'?'on':'')+'">Read</a>'+
+    '<a href="'+url(slug,'action=edit')+'" class="'+(action==='edit'?'on':'')+'">'+(STATIC?(exist?'View source':'Create'):(exist?'Edit':'Create'))+'</a>'+
+    (isTalk&&!STATIC?'<a href="'+url(slug,'action=edit&section=new')+'" class="'+(action==='edit'&&R.section==='new'?'on':'')+'">Add topic</a>':'')+
+    '<a href="'+url(slug,'action=history')+'" class="'+(action==='history'||R.diff?'on':'')+'">View history</a>'+
+    '<span class="dropdown"><button class="tab" id="toolsBtn" aria-expanded="false">Tools ▾</button><div class="menu right" id="tools" hidden>'+
+    '<h4>General</h4><a href="'+url('Special:WhatLinksHere/'+base)+'">What links here</a><a href="'+url(slug,'action=info')+'">Page information</a><a href="'+url('Special:Random')+'">Random article</a></div></span>';
+  return '<div class="grp">'+art+tk+'</div><div class="grp">'+r+'</div>';
+}
+function tocFor(html){var tmp=document.createElement('div');tmp.innerHTML=html;var hs=tmp.querySelectorAll('h2,h3');if(hs.length<2)return '';
+  var t='<div class="h"><span>Contents</span></div><ul><li><a href="#top" data-top="1">(Top)</a></li>';
+  hs.forEach(function(h){var tx=(h.childNodes[0]&&h.childNodes[0].textContent)||h.textContent;t+='<li class="'+(h.tagName==='H3'?'l3':'')+'"><a href="#'+h.id+'">'+esc(tx)+'</a></li>';});return t+'</ul>';}
+function inlineToc(html){var tmp=document.createElement('div');tmp.innerHTML=html;var hs=tmp.querySelectorAll('h2');if(hs.length<3)return '';
+  return '<div class="toc-inline"><b>Contents</b><ol>'+Array.prototype.map.call(hs,function(h){return '<li><a href="#'+h.id+'">'+esc(h.childNodes[0].textContent)+'</a></li>';}).join('')+'</ol></div>';}
+function catBox(cats){if(!cats||!cats.length)return '';return '<div class="catlinks"><a href="/wiki/Special:Categories">Categories</a>: '+cats.map(function(c){return '<a href="'+url('Category:'+c)+'">'+esc(c)+'</a>';}).join('')+'</div>';}
+
+function render(){
+  hidePopup();R=parseLoc();var s=R.slug;
+  document.querySelectorAll('.menu').forEach(function(m){m.hidden=true;});
+  if(s==='Special:Random'){var all=Object.keys(PAGES).filter(function(x){return x.indexOf('talk:')!==0;});go(url(all[Math.floor(Math.random()*all.length)]),true);return;}
+  if(/^Special:|^Category:/.test(s))return renderSpecial(s);
+  if(R.action==='edit')return renderEdit(s);
+  if(R.action==='history')return renderHistory(s);
+  if(R.action==='info')return renderInfo(s);
+  if(R.diff)return renderDiff(s);
+  if(s==='main')return renderMain();
+  var p=PAGES[s];
+  if(!p){setChrome({title:esc(title(s)),titleText:title(s),tabs:tabsFor(s,'view'),sub:true});
+    $('content').innerHTML='<div class="ambox">'+(s.indexOf('talk:')===0?'This talk page has no comments yet. <a href="'+url(s,'action=edit&section=new')+'">Start a new topic</a>.':'Home RL Wiki does not have an article with this exact name. <a href="'+url(s,'action=edit')+'">Create this page</a>, or <a href="'+url('Special:Search','search='+encodeURIComponent(title(s)))+'">search for it</a>.')+'</div>';return;}
+  ASYNC=[];var html=renderWiki(p.src);if(p.origin==='user')html=sanitize(html);
+  var isTalk=s.indexOf('talk:')===0;
+  setChrome({title:esc(p.title||title(s)),titleText:p.title||title(s),tabs:tabsFor(s,'view'),sub:true,toc:tocFor(html),cats:catBox(p.cats),foot:defaultFoot(p.at)});
+  $('content').innerHTML=(isTalk?'<div class="talkhead">This is the talk page for discussing improvements to '+inline('[['+s.slice(5)+']]')+'. <a href="'+url(s,'action=edit&section=new')+'">Add a new topic</a>. Sign with <code>~~~~</code>; Claude reads and replies here when asked.</div>':'')+inlineToc(html)+html;
+  afterRender();
+  if(R.hash){var t=document.getElementById(R.hash);if(t)setTimeout(function(){t.scrollIntoView();},30);}else window.scrollTo(0,0);
+}
+function afterRender(){var c=$('content');runAsync(c);if(c.querySelector('#calcMount'))initCalc();if(c.querySelector('#formMount'))initForm();
+  var tb=$('toolsBtn');if(tb)tb.onclick=function(e){e.stopPropagation();toggleMenu(tb,$('tools'));};
+  var top=document.querySelector('[data-top]');if(top)top.onclick=function(e){e.preventDefault();window.scrollTo({top:0,behavior:'smooth'});};
+  spy();}
+// scroll-spy for sticky TOC
+var spyOn=false;function spy(){if(spyOn)return;spyOn=true;window.addEventListener('scroll',function(){var links=$('side').querySelectorAll('li');if(!links.length)return;var hs=$('content').querySelectorAll('h2[id],h3[id]'),cur=null;
+  hs.forEach(function(h){if(h.getBoundingClientRect().top<120)cur=h.id;});links.forEach(function(li){var a=li.querySelector('a');li.classList.toggle('on',!!cur&&a.getAttribute('href')==='#'+cur);});},{passive:true});}
+
+// ---------------- main page ----------------
+function renderMain(){
+  var p=PAGES.main, n=Object.keys(PAGES).filter(function(x){return x.indexOf('talk:')!==0&&x!=='main';}).length;
+  setChrome({title:'Main Page',titleText:'Main Page',tabs:tabsFor('main','view'),sub:false,foot:defaultFoot(p&&p.at)});
+  ASYNC=[];var body=p?renderWiki(p.src,{noEdit:true}):'';
+  $('content').innerHTML='<div class="mp-top"><div class="w">Welcome to Home RL Wiki,</div><div class="s">the reference for RL post-training on our own machines that anyone here can edit.<br><b>'+n+'</b> articles · <a href="/wiki/learning-path">Start here</a> · <a href="/wiki/questions">Questions for you</a>'+(ANSWERS&&ANSWERS.updatedAt?' ('+answeredCount()+' of '+FORM_Q.length+' answered)':'')+'</div></div>'+body;
+  afterRender();window.scrollTo(0,0);
+}
+
+// ---------------- edit ----------------
+function sign(){var d=new Date();return '— '+ME+' '+d.getUTCHours().toString().padStart(2,'0')+':'+d.getUTCMinutes().toString().padStart(2,'0')+', '+d.getUTCDate()+' '+d.toLocaleString('en-GB',{month:'long',timeZone:'UTC'})+' '+d.getUTCFullYear()+' (UTC)';}
+function renderEdit(s){
+  if(STATIC)return renderSource(s);
+  var p=PAGES[s], src=p?p.src:'', sec=R.section, isNewTopic=sec==='new', parts=null, part=src, exist=!!p;
+  if(sec&&!isNewTopic&&p){parts=sections(src);var S=parts.secs[+sec];if(S)part=parts.lines.slice(S.start,S.end).join('\n');else sec=null;}
+  var heading=(isNewTopic?'Adding a new topic to ':exist?'Editing ':'Creating ')+esc(title(s))+(sec&&!isNewTopic&&parts?' (section)':'');
+  setChrome({title:heading,titleText:heading.replace(/<[^>]+>/g,''),tabs:tabsFor(s,'edit'),sub:false});
+  var c=$('content');
+  if(isNewTopic){
+    c.innerHTML='<div class="addtopic"><label for="tSub"><b>Subject</b></label><input id="tSub" type="text"><label for="tBody"><b>Description</b></label><textarea id="tBody" placeholder="Your question or note. It will be signed automatically."></textarea><div class="editor"><div class="row"><button class="btn primary" id="tSave">Add topic</button><button class="btn" id="tPrev">Preview</button><a href="'+url(s)+'">Cancel</a><span class="status" id="eStatus"></span></div></div><div id="ePrev"></div></div>';
+    var mk=function(){return (src?src.replace(/\s+$/,'')+'\n\n':'')+'== '+($('tSub').value.trim()||'Untitled')+' ==\n'+$('tBody').value.trim()+' '+sign()+'\n';};
+    $('tPrev').onclick=function(){$('ePrev').innerHTML='<div class="previewnote">This is only a preview; your changes have not yet been saved.</div>'+sanitize(renderWiki('== '+esc($('tSub').value)+' ==\n'+$('tBody').value+' '+sign(),{noEdit:true}));};
+    $('tSave').onclick=function(){if(!$('tBody').value.trim()){$('eStatus').textContent='Write something first.';return;}
+      save(s,{src:mk(),title:p?p.title:'Talk:'+title(s.slice(5)),cats:[],summary:'New topic: '+$('tSub').value.trim()},function(){go(url(s)+'#'+slugId($('tSub').value.trim()||'Untitled'));});};
+    return;}
+  c.innerHTML='<div class="editor">'+(!exist?'<div class="row"><label for="eTitle"><b>Title</b></label><input id="eTitle" type="text" value="'+esc(title(s))+'"></div>':'')+
+    '<div class="toolbar" role="toolbar" aria-label="Formatting">'+
+    [['b','<b>B</b>',"'''","'''",'Bold'],['i','<i>I</i>',"''","''",'Italic'],['h','Heading','== ',' ==','Section heading'],['l','Link','[[',']]','Internal link'],['x','External','[https://example.com ',']','External link'],['r','Cite','<ref>','</ref>','Reference'],['y','Video','{{youtube VIDEOID ','}}','YouTube video'],['p','Paper','{{paper ','}}','arXiv paper'],['c','Card','{{card https://',' }}','Link preview'],['ls','List','* ','','Bulleted list']].map(function(t){return '<button type="button" data-w="'+esc(t[2])+'" data-e="'+esc(t[3])+'" title="'+t[4]+'">'+t[1]+'</button>';}).join('')+
+    '</div><textarea class="src" id="eSrc" aria-label="Wikitext" spellcheck="true"></textarea>'+
+    '<div class="row"><label for="eSum">Summary:</label><input id="eSum" type="text" placeholder="Briefly describe your changes"></div>'+
+    (exist?'':'<div class="row"><label for="eCats">Categories:</label><input id="eCats" type="text" placeholder="e.g. Concepts, Project"></div>')+
+    '<div class="row"><button class="btn primary" id="eSave">'+(exist?'Publish changes':'Save page')+'</button><button class="btn" id="ePrevBtn">Show preview</button>'+(exist?'<button class="btn" id="eDiffBtn">Show changes</button>':'')+'<a href="'+url(s)+'">Cancel</a><span class="status" id="eStatus"></span></div>'+
+    '<div class="help">Markup: <code>\'\'\'bold\'\'\'</code> · <code>[[page|text]]</code> · <code>== Heading ==</code> · <code>&lt;ref&gt;source&lt;/ref&gt;</code> · <code>{{youtube ID caption}}</code> · <code>{{paper 2402.03300}}</code> · <code>{{card URL}}</code> · full list in <a href="/wiki/about">Help: editing</a>. Saved to <code>content/pages/</code> on this Mac.</div>'+
+    '<div id="ePrev"></div></div>';
+  var ta=$('eSrc');ta.value=part;
+  c.querySelectorAll('.toolbar button').forEach(function(b){b.onclick=function(){var w=b.getAttribute('data-w'),e=b.getAttribute('data-e'),a=ta.selectionStart,z=ta.selectionEnd,sel=ta.value.slice(a,z)||(b.title==='YouTube video'?'':'text');
+    ta.setRangeText(w+sel+e,a,z,'end');ta.focus();};});
+  function full(){var v=ta.value;if(parts&&sec){var S=parts.secs[+sec];var L=parts.lines.slice();L.splice(S.start,S.end-S.start,v.replace(/\s+$/,''));return L.join('\n');}return v;}
+  $('ePrevBtn').onclick=function(){ASYNC=[];var h=sanitize(renderWiki(ta.value,{noEdit:true}));$('ePrev').innerHTML='<div class="previewnote">This is only a preview; your changes have not yet been saved. <a href="#eSave">→ Go to editing area</a></div><div class="mw">'+h+'</div>';runAsync($('ePrev'));};
+  if($('eDiffBtn'))$('eDiffBtn').onclick=function(){$('ePrev').innerHTML=diffTable(src,full(),'Latest revision','Your text');};
+  $('eSave').onclick=function(){var f=full();if(exist&&f===src){$('eStatus').textContent='No changes to publish.';return;}
+    var cats=exist?p.cats:($('eCats').value||'').split(',').map(function(x){return x.trim();}).filter(Boolean);
+    save(s,{src:f.replace(/~~~~/g,sign()),title:exist?p.title:($('eTitle').value.trim()||title(s)),cats:cats,summary:$('eSum').value.trim()||(sec&&parts?'/* '+parts.secs[+sec].title+' */':'')},function(){go(url(s)+(sec&&parts&&parts.secs[+sec]&&parts.secs[+sec].title?'#'+slugId(parts.secs[+sec].title):''));});};
+  ta.focus();
+}
+function renderSource(s){var p=PAGES[s],h=(p?'View source for ':'Create ')+esc(title(s));
+  setChrome({title:h,titleText:h,tabs:tabsFor(s,'edit'),sub:false});
+  var gh=p?ghEdit(s):ghNew(s);
+  $('content').innerHTML='<div class="ambox">This is the public, read-only copy of Home RL Wiki. '+(p?'You can view and copy the source of this page. To change it, ':'To create this page, ')+
+    '<a class="external" href="'+esc(gh)+'" target="_blank" rel="noopener"><b>'+(p?'edit it on GitHub':'create it on GitHub')+'</b></a>. The site rebuilds about a minute after a change is committed.</div>'+
+    (p?'<div class="editor"><textarea class="src" readonly aria-label="Wikitext source">'+esc(p.src)+'</textarea></div><p>Return to '+inline('[['+s+']]')+'.</p>':'');}
+function save(s,body,done){var st=$('eStatus'),btn=$('eSave')||$('tSave');if(btn)btn.disabled=true;if(st)st.textContent='Saving…';body.author=ME;
+  api('page/'+encodeURIComponent(s),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}).then(function(r){PAGES[s]=r.page;done();})
+  .catch(function(e){if(btn)btn.disabled=false;if(st)st.textContent='Couldn’t save: '+e.message+'. Is server.py running?';});}
+
+// ---------------- history / diff / info ----------------
+function renderHistory(s){
+  setChrome({title:esc(title(s))+': Revision history',titleText:title(s)+': Revision history',tabs:tabsFor(s,'history'),sub:false});
+  var c=$('content');c.innerHTML='<p class="status">Loading…</p>';
+  api('history/'+encodeURIComponent(s)).then(function(revs){
+    if(!revs.length){c.innerHTML='<p>There is no revision history for this page.</p>';return;}
+    var h='<p class="status">(cur) = difference from current version, (prev) = difference from preceding version. Select two revisions and compare them.</p><div class="row" style="margin:6px 0"><button class="btn" id="cmp">Compare selected revisions</button></div><ul class="hist">';
+    revs.forEach(function(r,i){var prev=revs[i+1],delta=prev?r.bytes-prev.bytes:r.bytes;
+      h+='<li><input type="radio" name="o" value="'+r.id+'"'+(i===1?' checked':'')+(i===0?' disabled':'')+' aria-label="old"> <input type="radio" name="n" value="'+r.id+'"'+(i===0?' checked':'')+' aria-label="new"> '+
+        '('+(i===0?'cur':'<a href="'+url(s,'diff='+revs[0].id+'&oldid='+r.id)+'">cur</a>')+' | '+(prev?'<a href="'+url(s,'diff='+r.id+'&oldid='+prev.id)+'">prev</a>':'prev')+') '+
+        '<b>'+esc(fmtDate(r.at))+'</b> · '+esc(r.author||'unknown')+' · '+r.bytes.toLocaleString()+' bytes <span class="'+(delta>0?'plus':delta<0?'minus':'zero')+'">('+(delta>0?'+':'')+delta.toLocaleString()+')</span> · <i>'+esc(r.summary||'')+'</i>'+
+        (i>0&&!STATIC?' (<a href="#" data-restore="'+r.id+'">restore this version</a>)':'')+'</li>';});
+    c.innerHTML=h+'</ul><p class="status" id="hStatus"></p>';
+    $('cmp').onclick=function(){var o=c.querySelector('input[name=o]:checked'),n=c.querySelector('input[name=n]:checked');if(o&&n)go(url(s,'diff='+n.value+'&oldid='+o.value));};
+    c.querySelectorAll('[data-restore]').forEach(function(a){a.onclick=function(e){e.preventDefault();var id=a.getAttribute('data-restore');
+      api('rev/'+encodeURIComponent(s)+'/'+id).then(function(rv){$('hStatus').textContent='Restoring…';
+        return api('page/'+encodeURIComponent(s),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({src:rv.src,title:rv.title,cats:rv.cats,summary:'Restored revision of '+fmtDate(rv.at),author:ME,restore:true})});})
+      .then(function(r){PAGES[s]=r.page;go(url(s));}).catch(function(e){$('hStatus').textContent='Couldn’t restore: '+e.message;});};});
+  }).catch(function(e){c.innerHTML='<p>Couldn’t load history: '+esc(e.message)+'</p>';});
+}
+function lcsDiff(a,b){var n=a.length,m=b.length,dp=[];for(var i=0;i<=n;i++){dp.push(new Uint16Array(m+1));}
+  for(i=n-1;i>=0;i--)for(var j=m-1;j>=0;j--)dp[i][j]=a[i]===b[j]?dp[i+1][j+1]+1:Math.max(dp[i+1][j],dp[i][j+1]);
+  var out=[];i=0;j=0;while(i<n&&j<m){if(a[i]===b[j]){out.push(['=',a[i],i,j]);i++;j++;}else if(dp[i+1][j]>=dp[i][j+1]){out.push(['-',a[i],i,-1]);i++;}else{out.push(['+',b[j],-1,j]);j++;}}
+  while(i<n){out.push(['-',a[i],i,-1]);i++;}while(j<m){out.push(['+',b[j],-1,j]);j++;}return out;}
+function diffTable(oldS,newS,la,lb){var ops=lcsDiff(oldS.split('\n'),newS.split('\n'));
+  if(!ops.some(function(o){return o[0]!=='=';}))return '<p>(No difference)</p>';
+  var rows='',lastShown=-10,keep={};ops.forEach(function(o,k){if(o[0]!=='=')for(var d=-2;d<=2;d++)keep[k+d]=1;});
+  ops.forEach(function(o,k){if(!keep[k])return;if(k-lastShown>1)rows+='<tr><td colspan="4" class="ln" style="text-align:left;background:var(--soft)">…</td></tr>';lastShown=k;
+    var t=esc(o[1])||'&nbsp;';
+    if(o[0]==='=')rows+='<tr><td class="ln">'+(o[2]+1)+'</td><td class="c">'+t+'</td><td class="ln">'+(o[3]+1)+'</td><td class="c">'+t+'</td></tr>';
+    else if(o[0]==='-')rows+='<tr><td class="ln">'+(o[2]+1)+'</td><td class="d">'+t+'</td><td class="ln"></td><td></td></tr>';
+    else rows+='<tr><td class="ln"></td><td></td><td class="ln">'+(o[3]+1)+'</td><td class="a">'+t+'</td></tr>';});
+  return '<div class="tw"><table class="diff"><colgroup><col style="width:3em"><col><col style="width:3em"><col></colgroup><tr><th colspan="2">'+esc(la)+'</th><th colspan="2">'+esc(lb)+'</th></tr>'+rows+'</table></div>';}
+function renderDiff(s){
+  setChrome({title:esc(title(s))+': Difference between revisions',titleText:title(s)+': Difference between revisions',tabs:tabsFor(s,'history'),sub:false});
+  var c=$('content');c.innerHTML='<p class="status">Loading…</p>';
+  Promise.all([api('rev/'+encodeURIComponent(s)+'/'+R.oldid),api('rev/'+encodeURIComponent(s)+'/'+R.diff)]).then(function(v){
+    c.innerHTML=diffTable(v[0].src,v[1].src,'Revision as of '+fmtDate(v[0].at)+' ('+(v[0].author||'')+')'+(v[0].summary?' — '+v[0].summary:''),'Revision as of '+fmtDate(v[1].at)+' ('+(v[1].author||'')+')'+(v[1].summary?' — '+v[1].summary:''))+'<h2>Revision as of '+esc(fmtDate(v[1].at))+'</h2><div>'+sanitize(renderWiki(v[1].src,{noEdit:true}))+'</div>';
+    runAsync(c);}).catch(function(e){c.innerHTML='<p>Couldn’t load revisions: '+esc(e.message)+'</p>';});
+}
+function renderInfo(s){var p=PAGES[s];setChrome({title:'Information for "'+esc(title(s))+'"',titleText:'Information for '+title(s),tabs:tabsFor(s,'info'),sub:false});
+  var c=$('content');if(!p){c.innerHTML='<p>This page does not exist.</p>';return;}
+  api('history/'+encodeURIComponent(s)).then(function(revs){var links=whatLinks(s.replace(/^talk:/,''));
+    c.innerHTML='<table class="wikitable"><tr><th>Display title</th><td>'+esc(p.title)+'</td></tr><tr><th>Page name</th><td><code>'+esc(s)+'</code></td></tr><tr><th>File</th><td><code>content/pages/'+esc(s.replace(':','__'))+'.wiki</code></td></tr><tr><th>Page length</th><td>'+new Blob([p.src]).size.toLocaleString()+' bytes</td></tr><tr><th>Categories</th><td>'+esc((p.cats||[]).join(', ')||'none')+'</td></tr><tr><th>Number of edits</th><td>'+revs.length+'</td></tr><tr><th>Page creator</th><td>'+esc(revs.length?revs[revs.length-1].author:'')+'</td></tr><tr><th>Date of creation</th><td>'+esc(revs.length?fmtDate(revs[revs.length-1].at):'')+'</td></tr><tr><th>Latest editor</th><td>'+esc(p.author||'')+'</td></tr><tr><th>Date of latest edit</th><td>'+esc(fmtDate(p.at))+'</td></tr><tr><th>Pages linking here</th><td><a href="'+url('Special:WhatLinksHere/'+s.replace(/^talk:/,''))+'">'+links.length+'</a></td></tr></table>';}).catch(function(){});}
+function whatLinks(target){var re=new RegExp('\\[\\['+target.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'(?:[\\]|#])');return Object.keys(PAGES).filter(function(x){return x!==target&&re.test(PAGES[x].src);}).sort();}
+
+// ---------------- special pages ----------------
+function specialChrome(t,opts){setChrome({title:esc(t),titleText:t,tabs:'<div class="grp"><a class="on">Special page</a></div><div class="grp"></div>',sub:false,contentSub:opts&&opts.sub});}
+function renderSpecial(s){var c=$('content');ASYNC=[];
+  var cm=s.match(/^Category:(.+)$/);
+  if(cm){var C=cm[1],list=catPages(C);setChrome({title:'Category:'+esc(C),titleText:'Category:'+C,tabs:'<div class="grp"><a class="on">Category</a></div><div class="grp"></div>',sub:true});
+    var groups={};list.forEach(function(x){var k=title(x).charAt(0).toUpperCase();(groups[k]=groups[k]||[]).push(x);});
+    c.innerHTML='<h2>Pages in category "'+esc(C)+'"</h2><p>The following '+list.length+' pages are in this category.</p><div style="columns:3 200px">'+Object.keys(groups).sort().map(function(k){return '<h3 style="margin-top:0">'+esc(k)+'</h3><ul>'+groups[k].map(function(x){return '<li>'+inline('[['+x+']]')+'</li>';}).join('')+'</ul>';}).join('')+'</div>';return;}
+  var wl=s.match(/^Special:WhatLinksHere\/(.+)$/);
+  if(wl){var t=wl[1],links=whatLinks(t);specialChrome('Pages that link to "'+title(t)+'"');c.innerHTML='<p>The following pages link to '+inline('[['+t+']]')+':</p><ul>'+links.map(function(x){return '<li>'+inline('[['+x+']]')+'</li>';}).join('')+'</ul>'+(links.length?'':'<p>No pages link to this page.</p>');return;}
+  if(s==='Special:AllPages'){specialChrome('All pages');var all=Object.keys(PAGES).filter(function(x){return x.indexOf('talk:')!==0&&x!=='main';}).sort(function(a,b){return title(a).localeCompare(title(b));});
+    c.innerHTML='<p>'+all.length+' articles.</p><ul style="columns:3 220px">'+all.map(function(x){return '<li>'+inline('[['+x+']]')+'</li>';}).join('')+'</ul>';return;}
+  if(s==='Special:Categories'){specialChrome('Categories');c.innerHTML='<ul>'+CATS.concat(EXTRA_CATS).map(function(k){return '<li><a href="'+url('Category:'+k)+'">'+k+'</a> ('+catPages(k).length+' pages)</li>';}).join('')+'</ul>';return;}
+  if(s==='Special:NewPage'){specialChrome('Create a page');c.innerHTML='<p><label for="np">Page name (lowercase, hyphens):</label><br><input id="np" type="text" style="width:100%;max-width:400px;border:1px solid var(--rule);padding:5px"> <button class="btn primary" id="npGo">Create</button></p>';
+    $('npGo').onclick=function(){var v=$('np').value.trim().toLowerCase().replace(/[^a-z0-9.\-]+/g,'-').replace(/^-+|-+$/g,'');if(v)go(url(v,'action=edit'));};return;}
+  if(s==='Special:Search'){specialChrome('Search results');var q=R.search;
+    c.innerHTML='<form id="sf2" class="row" style="display:flex;gap:6px;margin:6px 0 12px"><input id="q2" type="search" value="'+esc(q)+'" style="flex:1;max-width:520px;border:1px solid var(--rule);padding:6px"><button class="btn primary">Search</button></form>'+searchResults(q);
+    $('sf2').onsubmit=function(e){e.preventDefault();go(url('Special:Search','search='+encodeURIComponent($('q2').value)));};return;}
+  if(s==='Special:RecentChanges'){specialChrome('Recent changes',{sub:'Track the most recent changes to the wiki on this page.'});c.innerHTML='<p class="status">Loading…</p>';
+    api('changes').then(function(rows){if(!rows.length){c.innerHTML='<p>No changes.</p>';return;}var day='',h='';
+      rows.forEach(function(r){var d=new Date(r.at),dk=d.getUTCDate()+' '+d.toLocaleString('en-GB',{month:'long',timeZone:'UTC'})+' '+d.getUTCFullYear();
+        if(dk!==day){if(day)h+='</ul>';h+='<h4 class="day">'+esc(dk)+'</h4><ul class="rc">';day=dk;}
+        h+='<li>(<a href="'+url(r.slug,'action=history')+'">hist</a>) · '+(r.kind==='new page'?'<b title="new page">N</b> ':'')+'<a href="'+url(r.slug)+'">'+esc(r.title||r.slug)+'</a>; '+String(d.getUTCHours()).padStart(2,'0')+':'+String(d.getUTCMinutes()).padStart(2,'0')+' · '+r.bytes.toLocaleString()+' bytes · '+esc(r.author||'')+' <i>('+esc(r.summary||r.kind)+')</i></li>';});
+      c.innerHTML='<p class="status">'+rows.length+' changes, newest first.</p>'+h+'</ul>';}).catch(function(e){c.innerHTML='<p>Couldn’t load: '+esc(e.message)+'</p>';});return;}
+  specialChrome('No such special page');c.innerHTML='<p>Unknown special page. Try <a href="/wiki/Special:AllPages">All pages</a>.</p>';
+}
+function searchHits(q){q=(q||'').trim().toLowerCase();if(!q)return [];var words=q.split(/\s+/);
+  return Object.keys(PAGES).filter(function(s){return s!=='main';}).map(function(s){var p=PAGES[s],t=(p.title||'').toLowerCase(),b=plain(p.src),bl=b.toLowerCase(),score=0;
+    if(t===q)score+=100;else if(t.indexOf(q)===0)score+=70;else if(t.indexOf(q)>=0)score+=50;
+    words.forEach(function(w){var n=bl.split(w).length-1;if(n)score+=Math.min(20,3+n);else score-=5;});
+    var i=bl.indexOf(words[0]);return {s:s,t:p.title,score:score,snip:i>=0?b.slice(Math.max(0,i-80),i+160):b.slice(0,200),words:bl.length};})
+  .filter(function(x){return x.score>0;}).sort(function(a,b){return b.score-a.score;});}
+function searchResults(q){if(!q)return '';var h=searchHits(q);var exact=PAGES[q.toLowerCase().replace(/\s+/g,'-')];
+  var top=exact?'':'<p>Create the page "<a class="new" href="'+url(q.toLowerCase().replace(/[^a-z0-9.\-]+/g,'-'),'action=edit')+'">'+esc(q)+'</a>" on this wiki.</p>';
+  if(!h.length)return top+'<p>There were no results matching the query.</p>';
+  var re=new RegExp('('+q.trim().split(/\s+/).map(function(w){return w.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');}).join('|')+')','gi');
+  return top+'<p class="status">Showing '+h.length+' results.</p><ul class="searchresults">'+h.map(function(x){return '<li><div class="sr-t"><a href="'+url(x.s)+'" data-preview="'+esc(x.s)+'">'+esc(x.t).replace(re,'<mark>$1</mark>')+'</a></div><div class="sr-s">…'+esc(x.snip).replace(re,'<mark>$1</mark>')+'…</div><div class="sr-m">'+x.words.toLocaleString()+' characters'+(x.s.indexOf('talk:')===0?' · talk page':'')+'</div></li>';}).join('')+'</ul>';}
+
+// header search suggestions
+var q=$('q'),sg=$('sugg'),sel=-1;
+function showSugg(){var v=q.value;sel=-1;if(!v.trim()){sg.hidden=true;return;}var h=searchHits(v).filter(function(x){return x.s.indexOf('talk:')!==0;}).slice(0,7);
+  sg.innerHTML=h.map(function(x){return '<a href="'+url(x.s)+'"><b>'+esc(x.t)+'</b><small>'+esc(lead(x.s,120))+'</small></a>';}).join('')+'<a class="all" href="'+url('Special:Search','search='+encodeURIComponent(v))+'">Search for pages containing <b style="display:inline">'+esc(v)+'</b></a>';sg.hidden=false;}
+q.addEventListener('input',showSugg);q.addEventListener('focus',showSugg);
+q.addEventListener('keydown',function(e){var items=sg.querySelectorAll('a');if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();if(!items.length)return;sel=(sel+(e.key==='ArrowDown'?1:-1)+items.length)%items.length;items.forEach(function(a,i){a.classList.toggle('sel',i===sel);});}else if(e.key==='Escape'){sg.hidden=true;}});
+$('searchForm').addEventListener('submit',function(e){e.preventDefault();var items=sg.querySelectorAll('a');var v=q.value.trim();sg.hidden=true;q.blur();
+  if(sel>=0&&items[sel]){go(items[sel].getAttribute('href'));return;}var h=searchHits(v);if(h.length&&h[0].score>=70&&h[0].t.toLowerCase()===v.toLowerCase()){go(url(h[0].s));return;}go(url('Special:Search','search='+encodeURIComponent(v)));});
+document.addEventListener('click',function(e){if(!e.target.closest('.search'))sg.hidden=true;});
+document.addEventListener('keydown',function(e){if(e.key==='/'&&!/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)){e.preventDefault();q.focus();}});
+
+// ---------------- hover page previews ----------------
+var pop=$('popup'),popT=null,popFor=null;
+function hidePopup(){clearTimeout(popT);pop.hidden=true;popFor=null;}
+document.addEventListener('mouseover',function(e){var a=e.target.closest&&e.target.closest('a[data-preview]');if(!a||a===popFor)return;
+  if(a.closest('#side')||a.closest('.sugg'))return;clearTimeout(popT);popT=setTimeout(function(){var s=a.getAttribute('data-preview');if(!PAGES[s]&&s!=='main')return;
+    var txt=s==='main'?'The main page of Home RL Wiki.':lead(s,700);if(!txt)return;var r=a.getBoundingClientRect();
+    pop.innerHTML='<div class="pb"><div class="pt">'+esc(title(s))+'</div>'+esc(txt)+'</div><div class="pf">'+esc((PAGES[s].cats||[]).join(' · ')||'Home RL Wiki')+'</div>';
+    pop.hidden=false;var left=Math.min(window.scrollX+r.left,window.scrollX+document.documentElement.clientWidth-350);pop.style.left=Math.max(8,left)+'px';
+    var below=r.bottom+pop.offsetHeight+12<window.innerHeight;pop.style.top=(window.scrollY+(below?r.bottom+6:r.top-pop.offsetHeight-6))+'px';popFor=a;},450);});
+document.addEventListener('mouseout',function(e){var a=e.target.closest&&e.target.closest('a[data-preview]');if(a&&!a.contains(e.relatedTarget)){clearTimeout(popT);setTimeout(function(){if(!pop.matches(':hover'))hidePopup();},200);}});
+pop.addEventListener('mouseleave',hidePopup);
+
+// ---------------- calculator ----------------
+var HW={spark:{name:'DGX Spark',mem:128,bw:273,tf:125},pro:{name:'RTX PRO 6000',mem:96,bw:1792,tf:500}};
+var LAYOUTS={spark1:{label:'1 Spark',roll:['spark',1],train:['spark',1],co:true},spark4:{label:'4 Sparks',roll:['spark',4],train:['spark',4],co:true},prospark:{label:'PRO 6000s → Sparks',roll:['pro',4],train:['spark',4],co:false},pro4:{label:'4 PRO 6000s',roll:['pro',4],train:['pro',4],co:true}};
+var MODELS=[{id:'lfm3',slug:'lfm3',name:'LFM3-1.7B',total:1.73,active:1.73},{id:'q2',slug:'qwen3-5-small',name:'Qwen3.5-2B',total:2,active:2},{id:'q4',slug:'qwen3-5-small',name:'Qwen3.5-4B',total:4,active:4},{id:'q9',slug:'qwen3-5-small',name:'Qwen3.5-9B',total:9,active:9},{id:'q27',slug:'qwen3-8-27b',name:'Qwen3.8-27B',total:27.8,active:27.8},{id:'nb33',slug:'nanbeige4-3-33b',name:'Nanbeige4.3-33B',total:33.1,active:33.1},{id:'qfn',slug:'qwen3-8-flash-next',name:'Qwen3.8-Flash-Next',total:180,active:6,moe:true},{id:'glm',slug:'glm-5-3-flash',name:'GLM-5.3-Flash',total:320,active:18,moe:true},{id:'ds',slug:'deepseek-v4-1-flash',name:'DeepSeek-V4.1-Flash-1017',total:748,active:16,moe:true}];
+var CS={model:'q27',layout:'prospark',prec:'bf16',tasks:16,group:8,turns:12,gen:300,ctx:24000,env:2,conc:64,steps:150};
+function estimate(m,L,s){var bpp=s.prec==='fp8'?1:2,episodes=s.tasks*s.group,out={episodes:episodes};
+  var rh=HW[L.roll[0]],rn=L.roll[1],dpr=Math.ceil(m.total*bpp/(rh.mem*0.75));
+  if(dpr>rn){out.rollFit=false;}else{out.rollFit=true;var reps=Math.floor(rn/dpr),C=Math.min(s.conc,episodes),cPer=C/reps,bytes=m.active*bpp*(m.moe?2:1);
+    var bwTok=dpr*rh.bw*(dpr>1?0.8:1)/bytes*cPer,compTok=dpr*rh.tf*1e12*0.25/(2*m.active*1e9),agg=reps*Math.min(bwTok,compTok)*0.6,perSeq=agg/C,ep=s.turns*(s.gen/perSeq+s.env);
+    out.agg=agg;out.perSeq=perSeq;out.epSec=ep;out.rollSec=Math.ceil(episodes/C)*ep;out.C=C;}
+  var th=HW[L.train[0]],tn=L.train[1],need=m.total*bpp*1.2+24,have=tn*th.mem*0.9;out.trainFit=need<=have;out.need=need;out.have=have;
+  out.tokens=episodes*s.ctx;out.trainSec=out.tokens*6*m.active*1e9/(tn*th.tf*1e12*(m.moe?0.15:0.35));out.fit=out.rollFit&&out.trainFit;
+  if(out.fit){out.stepSec=L.co?(out.rollSec+out.trainSec+30):(Math.max(out.rollSec,out.trainSec)+10);out.totalSec=out.stepSec*s.steps;}return out;}
+function fmtDur(sec){if(sec<90)return Math.round(sec)+' s';var m=sec/60;if(m<90)return m.toFixed(m<10?1:0)+' min';var h=m/60;if(h<48)return h.toFixed(h<10?1:0)+' h';return (h/24).toFixed(1)+' days';}
+function fmtN(n){return n>=1e6?(n/1e6).toFixed(2)+'M':n>=1e3?(n/1e3).toFixed(1)+'k':Math.round(n)+'';}
+function initCalc(){var mount=$('calcMount');if(!mount)return;
+  var f=function(id,label,val,extra){return '<label for="'+id+'">'+label+'<input id="'+id+'" type="number" value="'+val+'" '+(extra||'')+'></label>';};
+  mount.innerHTML='<div class="grid"><label for="c-model">Model<select id="c-model">'+MODELS.map(function(m){return '<option value="'+m.id+'"'+(m.id===CS.model?' selected':'')+'>'+m.name+(m.moe?' (MoE)':'')+'</option>';}).join('')+'</select></label>'+
+   '<label for="c-layout">Hardware layout<select id="c-layout">'+Object.keys(LAYOUTS).map(function(k){return '<option value="'+k+'"'+(k===CS.layout?' selected':'')+'>'+LAYOUTS[k].label+'</option>';}).join('')+'</select></label>'+
+   '<label for="c-prec">Base weight precision<select id="c-prec"><option value="bf16">BF16 (2 bytes, simplest)</option><option value="fp8"'+(CS.prec==='fp8'?' selected':'')+'>FP8 frozen base (needs support)</option></select></label>'+
+   f('c-tasks','Tasks per step',CS.tasks,'min="1"')+f('c-group','Attempts per task',CS.group,'min="2"')+f('c-turns','Turns per attempt',CS.turns,'min="1"')+f('c-gen','Tokens written per turn',CS.gen,'min="10"')+f('c-ctx','Total tokens per attempt',CS.ctx,'min="1000" step="1000"')+f('c-env','Browser seconds per action',CS.env,'min="0" step="0.5"')+f('c-conc','Browsers at once',CS.conc,'min="1"')+f('c-steps','Training steps',CS.steps,'min="1"')+'</div><div class="res" id="c-out"></div>';
+  mount.querySelectorAll('input,select').forEach(function(el){el.addEventListener('input',calcRender);el.addEventListener('change',calcRender);});calcRender();}
+function calcRender(){var g=$;if(!g('c-model'))return;var n=function(id,min){var v=parseFloat(g(id).value);return isFinite(v)&&v>=min?v:min;};
+  CS={model:g('c-model').value,layout:g('c-layout').value,prec:g('c-prec').value,tasks:n('c-tasks',1),group:n('c-group',2),turns:n('c-turns',1),gen:n('c-gen',10),ctx:n('c-ctx',1000),env:n('c-env',0),conc:n('c-conc',1),steps:n('c-steps',1)};
+  var m=MODELS.filter(function(x){return x.id===CS.model;})[0],L=LAYOUTS[CS.layout],e=estimate(m,L,CS),h='<b>'+m.name+'</b> on <b>'+L.label+'</b>: '+e.episodes+' attempts per step ('+CS.tasks+' tasks × '+CS.group+'), '+fmtN(e.tokens)+' tokens to train on per step.<br>';
+  if(!e.rollFit)h+='<span class="no">Doesn’t fit for generation: '+Math.round(m.total*(CS.prec==='fp8'?1:2))+' GB of weights on '+L.roll[1]+'× '+HW[L.roll[0]].name+'.</span><br>';
+  if(!e.trainFit)h+='<span class="no">Doesn’t fit for training: needs ~'+Math.round(e.need)+' GB; the trainers have ~'+Math.round(e.have)+' GB usable.</span><br>';
+  if(e.fit){var rp=Math.round(100*e.rollSec/(e.rollSec+e.trainSec));h+='Generation: ~'+fmtN(e.agg)+' tokens/s across '+e.C+' browsers (~'+Math.round(e.perSeq)+' tok/s each). One attempt ≈ '+fmtDur(e.epSec)+'; all attempts ≈ <b>'+fmtDur(e.rollSec)+'</b>.<br>Training on them ≈ <b>'+fmtDur(e.trainSec)+'</b> per step.<br>'+(L.co?'Same machines, so the two take turns':'Separate machines, so the two overlap')+': one step ≈ <b>'+fmtDur(e.stepSec)+'</b>.<br><span style="font-size:1.1em">Whole run, '+CS.steps+' steps: <b>'+fmtDur(e.totalSec)+'</b></span>'+(m.moe?' <span class="mid">(MoE: LoRA on experts isn’t merged yet)</span>':'')+'<div class="bar" aria-hidden="true"><span style="width:'+rp+'%;background:var(--accent)"></span><span style="width:'+(100-rp)+'%;background:var(--warn)"></span></div><div class="legend"><i style="background:var(--accent)"></i>generating '+rp+'%<i style="background:var(--warn)"></i>training '+(100-rp)+'%</div>';}
+  g('c-out').innerHTML=h;var mx=$('matrixMount');if(mx){var t='<table class="wikitable"><tr><th>Model</th><th>Total / active</th>'+Object.keys(LAYOUTS).map(function(k){return '<th>'+LAYOUTS[k].label+'</th>';}).join('')+'</tr>';
+    MODELS.forEach(function(mm){t+='<tr><td>'+inline('[['+mm.slug+'|'+mm.name+']]')+'</td><td class="num">'+mm.total+'B / '+mm.active+'B</td>';Object.keys(LAYOUTS).forEach(function(k){var r=estimate(mm,LAYOUTS[k],CS);t+=r.fit?'<td class="num '+(mm.moe?'cell-mid':'cell-ok')+'">'+fmtDur(r.totalSec)+'<br><span class="legend">'+fmtDur(r.stepSec)+'/step</span></td>':'<td class="num cell-no">doesn’t fit</td>';});t+='</tr>';});mx.innerHTML=t+'</table>';}}
+
+// ---------------- questions form ----------------
+var FORM_Q=[
+ {n:'goal',type:'radio',q:'1. What should the trained model get better at first?',why:'Decides the environment and the reward.',o:[['browser','Browser use on my real workflows (Sitegeist)'],['tools','Tool-calling reliability in general'],['coding','Coding-agent tasks'],['speed','Same quality with shorter thinking / fewer tokens'],['other','Something else (say below)']],text:'goal_text'},
+ {n:'tasks',type:'checkbox',q:'2. Which browser tasks matter most to you?',why:'Shares come from your session history. Inbox work is the biggest but hardest to grade automatically.',o:[['multi-tab-collect','Multi-tab research and collect'],['forms','Signed-in forms and portals'],['inbox','Email and inbox triage'],['docs','Docs, Notion and slides editing'],['canvas','Canvas drawing (tldraw, Excalidraw)'],['dev-portals','Dev portals (GitHub, HF, Cloudflare, Vercel)'],['social','Social profile reading (X, LinkedIn)']]},
+ {n:'econ',type:'radio',q:'3. When you said "economic system", which did you mean?',why:'Each one leads to a different design.',o:[['reward','The scoring system: how attempts get graded and rewarded'],['budget','Compute budget: GPU-hours spent versus improvement gained'],['agent-economy','A real economy: agents earning and spending a budget as part of the task'],['ecosystem','"Ecosystem": the whole pipeline and tooling'],['unsure','Not sure, explain the options more']],text:'econ_text'},
+ {n:'pro',type:'radio',q:'4. Can the RTX PRO 6000s be used for RL runs?',why:'Decides which column of the run-time estimator applies.',o:[['never','No. DeepSeek-V4.1-Flash stays up 24/7.'],['judge','Only as a judge: keep DeepSeek serving and let it grade attempts'],['nights','Nights and weekends'],['yes','Yes, whenever a run needs them']]},
+ {n:'models',type:'checkbox',q:'5. Which models do you want considered?',o:[['lfm3','LFM3 family'],['qwen3.5-small','Small Qwen3.5 (0.8B–9B)'],['qwen3.8-27b','Qwen3.8-27B'],['nanbeige4.3-33b','Nanbeige4.3-33B'],['qwen3.8-flash-next','Qwen3.8-Flash-Next'],['glm-5.3-flash','GLM-5.3-Flash'],['dsv4.1-flash','DeepSeek-V4.1-Flash-1017 (judge or teacher only)']]},
+ {n:'nan',type:'radio',q:'6. Is "Nanpage 33B" Nanbeige4.3-33B?',o:[['yes','Yes'],['no','No, it’s this:']],text:'nan_text'},
+ {n:'deploy',type:'radio',q:'7. Where should the trained model run day to day?',why:'This caps the model size worth training.',o:[['spark','DGX Spark'],['pro6000','RTX PRO 6000 box'],['mac','Mac (MLX)'],['laptop-phone','Laptop or phone'],['unsure','Don’t know yet']]},
+ {n:'data',type:'radio',q:'8. Can your Sitegeist history be used to build training tasks?',why:'Tasks would be rebuilt as local fixtures; real pages and credentials never go into training.',o:[['yes','Yes'],['scrub','Yes, after scrubbing personal data'],['synthetic','Only synthetic sandbox tasks'],['no','No']]},
+ {n:'cloud',type:'radio',q:'9. Is cloud compute allowed?',o:[['home-only','Home hardware only'],['small','OK for small things (Tinker, a rented GPU for a day)'],['big','OK for big runs too']]},
+ {n:'success',type:'textarea',q:'10. What result would make this worth it?',why:'For example: "a 27B model finishes 80% of my research-and-collect tasks in under 30 tool calls".'},
+ {n:'learn',type:'checkbox',q:'11. How do you like to learn?',o:[['video','Short videos'],['notebooks','Interactive notebooks'],['diagrams','Diagrams and wiki pages'],['build-along','Building it together, step by step'],['papers','Reading papers']]},
+ {n:'hours',type:'radio',q:'12. Hours per week for this',o:[['<2','Under 2'],['2-5','2–5'],['5-10','5–10'],['10+','10+']]},
+ {n:'other',type:'textarea',q:'13. Anything else',why:'Questions, things that were unclear, ideas.'}];
+function answeredCount(){if(!ANSWERS)return 0;return FORM_Q.filter(function(f){var v=ANSWERS[f.n];return Array.isArray(v)?v.length:!!v;}).length;}
+function initForm(){var mount=$('formMount');if(!mount)return;var h='<form class="q" id="qform" autocomplete="off">';
+  FORM_Q.forEach(function(f){h+='<fieldset><legend>'+esc(f.q)+'</legend>'+(f.why?'<p class="why">'+esc(f.why)+'</p>':'');
+    if(f.type==='textarea')h+='<textarea id="f-'+f.n+'" aria-label="'+esc(f.q)+'"></textarea>';else{f.o.forEach(function(o,i){h+='<label><input type="'+f.type+'" name="'+f.n+'" id="f-'+f.n+'-'+i+'" value="'+esc(o[0])+'"> '+esc(o[1])+'</label>';});if(f.text)h+='<input type="text" id="f-'+f.text+'" placeholder="Optional detail" aria-label="Detail">';}h+='</fieldset>';});
+  mount.innerHTML=h+'<div class="savebar"><button class="btn primary" type="submit">Save answers</button><span class="status" id="fStatus"></span></div></form>';
+  var form=$('qform'),timer=null,saving=false,pending=false;
+  function collect(){var d={};FORM_Q.forEach(function(f){if(f.type==='radio'){var c=form.querySelector('input[name="'+f.n+'"]:checked');d[f.n]=c?c.value:'';}else if(f.type==='checkbox'){d[f.n]=Array.prototype.map.call(form.querySelectorAll('input[name="'+f.n+'"]:checked'),function(x){return x.value;});}else d[f.n]=$('f-'+f.n).value;if(f.text)d[f.text]=$('f-'+f.text).value;});return d;}
+  function fill(d){if(!d)return;FORM_Q.forEach(function(f){if(f.type==='radio'&&d[f.n])form.querySelectorAll('input[name="'+f.n+'"]').forEach(function(x){x.checked=x.value===d[f.n];});else if(f.type==='checkbox'&&d[f.n])form.querySelectorAll('input[name="'+f.n+'"]').forEach(function(x){x.checked=d[f.n].indexOf(x.value)>=0;});else if(f.type==='textarea'&&typeof d[f.n]==='string')$('f-'+f.n).value=d[f.n];if(f.text&&typeof d[f.text]==='string')$('f-'+f.text).value=d[f.text];});}
+  function st(t){var el=$('fStatus');if(el)el.textContent=t;}
+  if(STATIC){var draft=null;try{draft=JSON.parse(ls('answers-draft')||'null');}catch(e){}
+    if(draft)fill(draft);
+    var md=function(d){return FORM_Q.map(function(f){var v=d[f.n];v=Array.isArray(v)?v.join(', '):v;var x=f.text&&d[f.text]?' ('+d[f.text]+')':'';return '**'+f.q+'**\n'+((v||'')+x||'_(no answer)_');}).join('\n\n');};
+    form.querySelector('button[type=submit]').textContent='Send answers as a GitHub issue';
+    st('Your answers stay in this browser until you press Send. Sending opens a prefilled issue on the public GitHub repo, so anyone can read it.');
+    form.addEventListener('change',function(){ls('answers-draft',JSON.stringify(collect()));});
+    form.addEventListener('input',function(){ls('answers-draft',JSON.stringify(collect()));});
+    form.addEventListener('submit',function(e){e.preventDefault();var d=collect();ls('answers-draft',JSON.stringify(d));
+      window.open('https://github.com/'+REPO+'/issues/new?title='+encodeURIComponent('Answers to the wiki questions')+'&body='+encodeURIComponent(md(d)),'_blank','noopener');});
+    return;}
+  function saveA(){if(saving){pending=true;return;}saving=true;st('Saving…');var d=collect();
+    api('answers',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)}).then(function(r){d.updatedAt=r.updatedAt;ANSWERS=d;st('Saved to content/answers.json at '+new Date().toLocaleTimeString()+'.');})
+    .catch(function(e){st('Couldn’t save: '+e.message+'. Is server.py running?');}).then(function(){saving=false;if(pending){pending=false;saveA();}});}
+  form.addEventListener('submit',function(e){e.preventDefault();clearTimeout(timer);saveA();});
+  form.addEventListener('change',function(){clearTimeout(timer);timer=setTimeout(saveA,1000);});
+  form.addEventListener('input',function(e){if(e.target.tagName==='TEXTAREA'||e.target.type==='text'){clearTimeout(timer);timer=setTimeout(saveA,1500);}});
+  if(ANSWERS&&ANSWERS.updatedAt){fill(ANSWERS);st('Loaded your saved answers (last saved '+fmtDate(ANSWERS.updatedAt)+').');}else st('Nothing saved yet. Answers save as you go.');}
+
+// ---------------- boot ----------------
+$('mmCats').innerHTML=CATS.concat(EXTRA_CATS).map(function(c){return '<a href="'+url('Category:'+c)+'">'+c+'</a>';}).join('');
+Promise.all([api('all'),api('answers').catch(function(){return {};})]).then(function(v){PAGES=v[0].pages||{};ANSWERS=v[1]&&v[1].updatedAt?v[1]:null;render();})
+.catch(function(e){setChrome({title:'Home RL Wiki',titleText:'Home RL Wiki',sub:false});$('content').innerHTML='<div class="ambox warn">'+(STATIC?'Couldn’t load the wiki data ('+esc(e.message)+'). Try reloading.':'The wiki server isn’t answering ('+esc(e.message)+'). Start it with <code>python3 ~/training-data-rl/wiki/server.py</code> and reload.')+'</div>';});
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+title: pass@k
+cats: Concepts
+origin: seed
+at: 2026-11-02T00:52:49.534796Z
+author: Claude
+summary: Original version
+seedhash: ceeb8f20e278b4a3
+---
+'''pass@1''' is the chance a single attempt succeeds. '''pass@k''' is the chance that at least one of ''k'' attempts succeeds.
+
+The gap between them is what RL feeds on. A model with pass@1 = 25% and pass@8 = 90% clearly ''can'' do the task but is unreliable. RL tends to move pass@1 up toward pass@k. It is much less able to raise pass@k itself, which is why tasks the model never solves teach nothing (see [[reinforcement-learning]]).
+
+The '''baseline''' step in the [[roadmap]] measures both numbers for every candidate model and task before any training.

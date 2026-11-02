@@ -1,0 +1,40 @@
+title: Environment
+cats: Concepts, Project
+origin: seed
+at: 2026-11-02T00:52:49.532135Z
+author: Claude
+summary: Original version
+seedhash: 59556790e241cba7
+---
+An '''environment''' is the world the [[policy]] acts in, plus the rules for starting and ending an attempt and computing its [[reward]]. Most RL frameworks expect three operations:
+* '''reset(task)''': set up a fresh world, for example open a blank browser on a local test page.
+* '''step(action)''': run one tool call and return what the model sees next (page text, a screenshot, an error).
+* '''reward()''': at the end, check the final state and return a score.
+
+== Browser environments ==
+{{youtube ixLXrgF77ME ''Agents and Multi-Agent Communication'' (CMU lecture by a WebArena co-author)|Graham Neubig}}
+
+Public ones include BrowserGym<ref>[https://github.com/ServiceNow/BrowserGym BrowserGym (ServiceNow)] and [https://arxiv.org/abs/2412.05467 the BrowserGym paper]</ref>, WebArena<ref>[https://arxiv.org/abs/2307.13854 Zhou et al., "WebArena", 2023]</ref>, WorkArena<ref>[https://arxiv.org/abs/2403.07718 Drouin et al., "WorkArena", 2024]</ref> and Mind2Web<ref>[https://arxiv.org/abs/2306.06070 Deng et al., "Mind2Web", 2023]</ref>. Hugging Face's OpenEnv wraps BrowserGym for TRL.<ref>[https://huggingface.co/docs/trl/en/openenv TRL OpenEnv documentation]</ref>
+
+== Our environment ==
+{{main browser-agent-bench}}
+
+Our own [[browser-agent-bench]] skill already does most of this for Sitegeist: local sandbox pages, ground-truth tasks and code verifiers. Turning it into an RL environment means wrapping it in reset / step / reward, running many copies at once, and growing it from 5 tasks to a few dozen.
+
+== Design rules ==
+* Use local fixtures, not live sites. Live pages change, which makes the same attempt score differently on different days.
+* Never let the model touch what the verifier reads. See [[reward-hacking]].
+* Cap turns and time per attempt, so a stuck attempt ends with reward 0 instead of stalling the step.
+
+== Videos ==
+{{videos
+VPcsAiUyu3Q CMU Advanced NLP 2026, lecture 18: Agents|Sean Welleck, with Zora Wang
+9hkjq6hQTYo ''How To Build A Computer-Using Agent''|Cobus Greyling
+}}
+
+== Further reading ==
+{{paper 2412.05467}}
+
+{{paper 2307.13854}}
+
+{{cards https://huggingface.co/docs/trl/en/openenv https://github.com/ServiceNow/BrowserGym}}

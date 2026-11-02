@@ -1,0 +1,90 @@
+title: Video library
+cats: Videos, Help
+origin: seed
+at: 2026-11-02T00:52:49.545012Z
+author: Claude
+summary: Original version
+seedhash: ab077d174af8263a
+---
+The '''video library''' lists every video embedded on Home RL Wiki, grouped by topic. Each one was checked against YouTube on 1 November 2026. Click a thumbnail to play it here.
+
+== The big picture ==
+{{videos
+LPZh9BOjkQs ''Large Language Models explained briefly''|3Blue1Brown
+7xTGNNLPyMI ''Deep Dive into LLMs like ChatGPT''|Andrej Karpathy
+zjkBMFhNj_g ''Intro to Large Language Models''|Andrej Karpathy
+}}
+
+== Reinforcement learning for LLMs ==
+{{videos
+2MBJOuVq380 ''RLHF: From Zero to ChatGPT''|Hugging Face
+PAz_-xPJcRM ''The RLVR Revolution''|Latent Space, with Nathan Lambert
+o4AB5xHIDdM ''The Rise of Reasoning Models''|Nathan Lambert
+qGyFrqc34yc RLHF with math and PyTorch code|Umar Jamil
+yYZBd25rl4Q ''Why RL Won''|Latent Space, with Kyle Corbitt
+}}
+
+== GRPO, PPO and DeepSeek-R1 ==
+{{videos
+wEa9CmWPWoU ''GRPO Explained under 40 Minutes''|Vizuara
+bAWV_yrqx4w ''GRPO Explained'' (DeepSeekMath)|Yannic Kilcher
+K34gBCjzni8 ''DeepSeek R1 Theory Tutorial''|freeCodeCamp
+8jtAzxUwDj0 ''PPO for LLMs Explained Intuitively''|Julia Turc
+HrapVFNBN64 ''Proximal Policy Optimization Explained''|Edan Meyer
+XMnxKGVnEUc The DeepSeek-R1 paper|Umar Jamil
+DCqqCLlsIBU ''DeepSeek-R1 Paper Explained''|AI Papers Academy
+}}
+
+== LoRA and Tinker ==
+{{videos
+DhRoTONcyZE ''What is LoRA'', by its inventor|Edward Hu
+PXWYUTMt-AU LoRA, visually and in PyTorch|Umar Jamil
+Xb34YmbEiOc Ray Summit 2025 keynote|Anyscale, with Thinking Machines
+Mmo-B5HD0ac ''Tinker: an API for Fine-Tuning & RL''|AI Makerspace
+}}
+
+== KL divergence ==
+{{videos
+SxGYPqCgJWM ''Intuitively Understanding the KL Divergence''|Adian Liusie
+LJwtEaP2xKA KL divergence through secret codes|Ben Lambert
+tXE23653JrU ''Fantastic KL Divergence and How to (Actually) Compute It''|Jia-Bin Huang
+}}
+
+== Rewards, judges and reward hacking ==
+{{videos
+nKJlF-olKmg ''9 Examples of Specification Gaming''|Robert Miles AI Safety
+92qDfT8pENs ''Reward Hacking''|Robert Miles AI Safety
+1X1-IRaYY6U ''The RL Fine-Tuning Playbook''|Cognitive Revolution
+7EGF0Mc0_os Eugene Yan on LLMs as judges|Jason Liu
+a3SMraZWNNs ''How to Systematically Set Up LLM Evals''|Dave Ebbelaar
+BsWxPI9UM4c ''Why AI evals are the hottest new skill''|Lenny's Podcast
+}}
+
+== Agents and browser agents ==
+{{videos
+gEDl9C8s_-4 ''How to Train Your Agent''|AI Engineer, Kyle Corbitt
+X6R4loxcn0k ''Training Agents with RL''|OpenPipe
+VPcsAiUyu3Q CMU Advanced NLP 2026: Agents|Sean Welleck, with Zora Wang
+ixLXrgF77ME CMU: Agents and Multi-Agent Communication|Graham Neubig
+9hkjq6hQTYo ''How To Build A Computer-Using Agent''|Cobus Greyling
+}}
+
+== Models, MoE and serving ==
+{{videos
+0QQlYR1r6pQ ''Mixture of Experts, Visually Explained''|Jia-Bin Huang
+mwO6v4BlgZQ ''Mixtral of Experts''|Yannic Kilcher
+UiX8K-xBUpE Mistral / Mixtral explained|Umar Jamil
+0VLAoVGf_74 ''How DeepSeek Rewrote the Transformer''|Welch Labs
+5ZlavKF_98U ''Fast LLM Serving with vLLM and PagedAttention''|Anyscale
+m0JnK3b-Am4 ''KV-Cache & PagedAttention''|Eugen Soloviov
+}}
+
+== Hands-on and hardware ==
+{{videos
+SoPE1cUz3Hs A local GRPO run with Unsloth|Bijan Bowen
+OkEGJ5G3foU RL, kernels, reasoning and agents workshop|AI Engineer, Daniel Han
+4uLEMtAdQCM SFT, PPO and GRPO with TRL|Ricardo Calix
+FW8bCjhl3zE ''NVIDIA DGX Spark in 12 Minutes''|codebasics
+UaGFUtqravQ ''Introducing NVIDIA DGX Spark''|NVIDIA Developer
+Pf6jCMywpBY ''DGX Spark Live: VLM fine-tuning''|NVIDIA Developer
+}}

@@ -1,0 +1,27 @@
+title: Run-time estimator
+cats: Hardware, Project
+origin: seed
+at: 2026-11-02T00:52:49.537325Z
+author: Claude
+summary: Original version
+seedhash: c890a6176c8490bb
+---
+The '''run-time estimator''' predicts how long one RL run takes on our machines. Every number here is an '''estimate from first principles, not a measurement'''. The first week of real work replaces the inputs with measured ones. Change any input and the numbers update.
+
+{{calc}}
+
+== Every model on every layout ==
+Total wall-clock for the whole run with the settings above. '''Green''': practical now. '''Amber''': fits on paper, but LoRA-RL for mixture-of-experts models isn't merged in the frameworks yet<ref>[https://github.com/verl-project/verl/pull/7483 verl PR #7483 (MoE LoRA for DeepSeek-V4.1 and GLM-5.3-Flash), open as of 1 Nov 2026]</ref>. '''Grey''': doesn't fit in memory.
+
+{{matrix}}
+
+== How it is computed ==
+* '''Generation''': each replica produces min(bandwidth ÷ active-weight bytes × concurrent attempts, 25% of peak compute ÷ 2 × active params) tokens per second, times a 0.6 real-world factor. MoE models are charged double weight reads, because a batch touches many experts. Each turn adds the browser's seconds per action.
+* '''Training''': tokens per step × 6 × active parameters ÷ (devices × peak × efficiency). Efficiency is 35% for dense models and 15% for MoE. The factor 6 covers the forward pass, the backward pass with frozen weights, and a reference pass.
+* '''Fit''': generation needs the weights in 75% of the generating machines' memory. Training needs 1.2 × weights + 24 GB within 90% of the trainers' memory.
+* '''Step''': on shared machines, generation + training + 30 s of swapping. On split machines, the longer of the two + 10 s of adapter sync.
+* '''Hardware''': Spark 128 GB, 273 GB/s, ~125 TFLOPS. PRO 6000: 96 GB, 1.8 TB/s, ~500 TFLOPS. See [[dgx-spark]] and [[rtx-pro-6000]].
+
+== The two levers ==
+* '''Context per attempt''': most tokens are page text. Halving it roughly halves training time, so trim the accessibility tree hard.
+* '''Active parameters''': training cost scales with them. A 4B model is about 7× cheaper per step than a 27B one.

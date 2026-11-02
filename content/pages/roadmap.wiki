@@ -1,0 +1,30 @@
+title: Roadmap
+cats: Project
+origin: seed
+at: 2026-11-02T00:52:49.543531Z
+author: Claude
+summary: Original version
+seedhash: 63e515d67e5a051d
+---
+The '''roadmap''' is the proposed order of work. Times are rough, and the [[run-time]] estimates feed the run lengths.
+
+<div class="tw"><table class="wt">
+<tr><th>Phase</th><th>Work</th><th>Hardware</th><th>Time</th><th>Done when</th></tr>
+<tr><td>0. Learn by doing</td><td>Unsloth GRPO tutorial, then TRL's Wordle notebook, on a 2B model</td><td>1 Spark</td><td class="num">1–3 evenings</td><td>You've watched a reward curve rise and know why</td></tr>
+<tr><td>1. Environment</td><td>Wrap [[browser-agent-bench]]; grow to ~50 parametrised tasks; freeze live data as fixtures</td><td>Mac + 1 Spark</td><td class="num">~1 week</td><td>Any model is scored on all tasks with one command</td></tr>
+<tr><td id="baseline">2. Baseline</td><td>Score each candidate 8 times per task; record [[pass-at-k|pass@1 and pass@8]]; keep tasks in the 10–70% band</td><td>PRO 6000s or Sparks</td><td class="num">1–2 days</td><td>A pass-rate table that picks the first target</td></tr>
+<tr><td>2b. Warm start (if needed)</td><td>If a small model never succeeds, short SFT on DeepSeek's successful trajectories</td><td>1 Spark</td><td class="num">Hours</td><td>The small model succeeds sometimes</td></tr>
+<tr><td>3. First LoRA-RL run</td><td>[[qwen3-5-small|Qwen3.5-4B]] or [[lfm3|LFM3-1.7B]], rank 16–32, ~150 steps; 4 variants side by side</td><td>1 Spark per run</td><td class="num">1.5–4 days</td><td>Held-out pass rate up, [[forgetting|general benchmarks]] flat</td></tr>
+<tr><td>4. Scale up</td><td>[[qwen3-8-27b|Qwen3.8-27B]] or [[nanbeige4-3-33b|Nanbeige4.3-33B]]</td><td>PRO 6000s + Sparks</td><td class="num">2–6 days per run</td><td>Beats the base model on our real browser workload</td></tr>
+<tr><td>5. MoE</td><td>[[glm-5-3-flash|GLM-5.3-Flash]] or [[qwen3-8-flash-next|Qwen3.8-Flash-Next]]</td><td>All 8 devices</td><td class="num">Unknown</td><td>Tooling exists and a small run is stable</td></tr>
+</table></div>
+
+== Expected gains ==
+Published web-agent RL on small models shows big jumps on narrow benchmarks: Llama-3.1-8B went from 4.8% to 42.4% on WebArena-Lite<ref>[https://arxiv.org/abs/2411.02337 Qi et al., "WebRL", 2024]</ref>, Qwen2.5-3B from 6.1% to 33.9%<ref>[https://arxiv.org/abs/2505.16421 Wei et al., "WebAgent-R1", 2025]</ref>, and a 2026 4B model reached 67.0% on Online-Mind2Web<ref>[https://arxiv.org/abs/2606.02031 OpenWebRL, 2026 (code not yet released)]</ref>. Stronger starting models gain less on general benchmarks. The gain on our tools and tasks is what phase 2 onward measures.
+
+== Further reading ==
+{{paper 2411.02337}}
+
+{{paper 2505.16421}}
+
+{{paper 2606.02031}}

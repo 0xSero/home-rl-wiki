@@ -1,0 +1,26 @@
+title: Qwen3.5 small models
+cats: Models
+origin: seed
+at: 2026-11-02T00:52:49.538146Z
+author: Claude
+summary: Original version
+seedhash: 850e1809855df719
+---
+{{infobox Qwen3.5 (small sizes)
+Developer: Alibaba Qwen
+Sizes: 0.8B, 2B, 4B, 9B (each with a -Base)
+Architecture: Gated DeltaNet hybrid, vision-language
+Context: 262K
+License: Apache-2.0
+Role here: First experiments}}
+
+The '''Qwen3.5''' small models are the current sub-10B Qwen line. There are no sub-10B Qwen3.6 or Qwen3.8 models.<ref>[https://huggingface.co/Qwen/Qwen3.5-4B Qwen3.5-4B model card]</ref>
+
+== In this project ==
+* TRL's BrowserGym GRPO example uses '''Qwen3.5-2B''' by default, the shortest path to a working browser RL run.<ref>[https://github.com/huggingface/trl/tree/main/examples/grpo_browsergym TRL grpo_browsergym example]</ref>
+* '''Qwen3.5-4B''' is a good first real target: a 150-step run is about 3.7 days on one [[dgx-spark|Spark]] or about 35 hours on four (estimates, see [[run-time]]).
+* Unsloth's guide says Qwen3.5-architecture models need <code>fast_inference=False</code>, which makes rollouts slower in Unsloth.<ref>[https://unsloth.ai/docs/get-started/reinforcement-learning-rl-guide Unsloth RL guide]</ref>
+* The same architecture as [[qwen3-8-27b|Qwen3.8-27B]], so what works at 4B should carry over.
+
+== Further reading ==
+{{card https://huggingface.co/Qwen/Qwen3.5-4B}}

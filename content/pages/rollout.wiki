@@ -1,0 +1,35 @@
+title: Rollout
+cats: Concepts
+origin: seed
+at: 2026-11-02T00:52:49.531856Z
+author: Claude
+summary: Original version
+seedhash: 5a126858b46d0c62
+---
+{{infobox Rollout
+Also called: Episode, trajectory, attempt
+Contains: Every turn of one attempt at one task
+Scored by: A [[verifier]] or [[llm-judge|judge]]
+Typical size here: 12 turns, ~24k tokens}}
+
+A '''rollout''' is one complete attempt at one task, recorded turn by turn. For a browser agent it is a conversation between the model and the browser. The model chooses a tool call, Sitegeist runs it, the page text comes back, and this repeats until the model says it is done or runs out of turns. Then the result is scored.
+
+{{fig rollout}}
+
+== Which tokens get trained ==
+Only the model's own tokens (its reasoning and tool calls) receive the training signal. The task text and the page observations are '''masked''': the model reads them, but the loss ignores them. They still cost compute, because the model has to process them in both generation and training.
+
+== Groups ==
+{{youtube gEDl9C8s_-4 ''How to Train Your Agent: Building Reliable Agents with RL''|AI Engineer, Kyle Corbitt}}
+
+[[grpo|GRPO]] attempts each task several times (the '''group''', usually 8) so the attempts can be compared with each other. 16 tasks × 8 attempts = 128 rollouts per step.
+
+== Why browser rollouts are slow ==
+Each turn waits for a real page to load and render. In our [[sitegeist-usage|Sitegeist history]], 61% of failed tool calls were timeouts, mostly on heavy pages such as Gmail. An RL [[environment]] should therefore run against fast local fixtures and echo servers, not live websites. That keeps rollouts quick and the rewards repeatable.
+
+== Synchronous and asynchronous ==
+In the simplest setup, rollouts and training take turns on the same machines. In an '''asynchronous''' setup, one machine group generates the next batch while another trains on the last one. The attempts are then one adapter version old, which works fine in practice. See [[on-off-policy]] and [[cluster-layout]].
+
+== See also ==
+* [[environment]]
+* [[run-time]]

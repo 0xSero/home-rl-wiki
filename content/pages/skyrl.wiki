@@ -1,0 +1,19 @@
+title: SkyRL
+cats: Frameworks
+origin: seed
+at: 2026-11-02T00:52:49.541102Z
+author: Claude
+summary: Original version
+seedhash: 500b747689ecae2a
+---
+{{stub}}
+
+'''SkyRL''' (NovaSky, v0.4.0) provides skyrl-gym tool environments and skyrl-agent for multi-turn RL.<ref>[https://github.com/NovaSky-AI/SkyRL SkyRL repository]</ref> It notably '''implements the Tinker API on your own GPUs'''<ref>[https://docs.skyrl.ai/docs/tinker/overview SkyRL Tinker backend docs]</ref>, so the clean LoRA-RL recipes in Thinking Machines' tinker-cookbook can run at home instead of on their hosted service.<ref>[https://github.com/thinking-machines-lab/tinker-cookbook tinker-cookbook]</ref> It has been used for LoRA RL on a 501B MoE. Spark support is unverified.
+
+== Videos ==
+{{videos
+Mmo-B5HD0ac ''Tinker: an API for Fine-Tuning & RL''|AI Makerspace
+}}
+
+== Further reading ==
+{{cards https://docs.skyrl.ai/docs/tinker/overview https://github.com/thinking-machines-lab/tinker-cookbook}}

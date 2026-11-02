@@ -1,0 +1,31 @@
+title: GLM-5.3-Flash
+cats: Models
+origin: seed
+at: 2026-11-02T00:52:49.539259Z
+author: Claude
+summary: Original version
+seedhash: 1e81fbdfaeb181a6
+---
+{{infobox GLM-5.3-Flash
+Developer: Z.ai (zai-org)
+Released: 25 August 2026
+Parameters: 320B MoE, 18B active
+Layers: 45, hidden 4096
+Experts: 288 routed + 1 shared, top-8
+Attention: Linear (KDA) and sparse MLA, 3:1
+Context: 1M positions
+Checkpoints: FP8 and BF16
+License: MIT
+Role here: Later}}
+
+'''GLM-5.3-Flash''' is a large, natively multimodal mixture-of-experts model with selectable thinking effort.<ref>[https://huggingface.co/zai-org/GLM-5.3-Flash GLM-5.3-Flash model card] and [https://huggingface.co/zai-org/GLM-5.3-Flash/raw/main/config.json config.json]</ref><ref>[https://z.ai/blog/glm-5.3-flash Z.ai blog: GLM-5.3-Flash]</ref> It already drives about 6,000 of our [[sitegeist-usage|Sitegeist tool calls]], so we know it can do the work. The question is whether RL can make it more reliable.
+
+== Why not yet ==
+* 320B parameters: BF16 (640 GB) doesn't fit anywhere we have. An FP8 frozen base (320 GB) fits on paper across 4 [[dgx-spark|Sparks]], at ~8.7 days per run. See [[run-time]].
+* MoE LoRA for GLM-5.3-Flash is an '''open pull request''' in verl that depends on further unmerged vLLM and Megatron changes.<ref>[https://github.com/verl-project/verl/pull/7483 verl PR #7483]</ref>
+* GSPO is the recommended loss for MoE stability. See [[grpo-variants]].
+
+Local note: an MLX 4-bit conversion is recorded at 177.6 GB (from our fleet notes, not verified independently).
+
+== Further reading ==
+{{card https://huggingface.co/zai-org/GLM-5.3-Flash}}

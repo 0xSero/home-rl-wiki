@@ -1,0 +1,30 @@
+title: LFM3
+cats: Models
+origin: seed
+at: 2026-11-02T00:52:49.537871Z
+author: Claude
+summary: Original version
+seedhash: a7ea496dc835b4e2
+---
+{{infobox LFM3
+Developer: Liquid AI
+Members: LFM3-1.7B (+ Base), LFM3-VL-2B, LFM3-Audio-2B, LFM3-Omni-2B, d1-2B, d1-Omni-2B
+Architecture: 24 layers: 13 short-convolution, 5 sliding-window attention, 6 global attention
+Context: 256K
+License: LFM Open License v1.0
+Role here: First experiments}}
+
+'''LFM3''' is Liquid AI's 2026 family of small models.<ref>[https://huggingface.co/collections/LiquidAI/lfm3-6adc03dcfe62bfd2fcd8eea7 LiquidAI LFM3 collection on Hugging Face]</ref><ref>[https://www.liquid.ai/blog/lfm3 Liquid AI blog: LFM3]</ref> The text model, LFM3-1.7B, is post-trained for agent harnesses, which makes it a plausible starting point for tool-calling RL despite its size.
+
+== Members ==
+* [https://huggingface.co/LiquidAI/LFM3-1.7B LFM3-1.7B] and [https://huggingface.co/LiquidAI/LFM3-1.7B-Base LFM3-1.7B-Base]: 1.73B, text
+* [https://huggingface.co/LiquidAI/LFM3-VL-2B LFM3-VL-2B]: 1.92B, vision-language. Could browse from screenshots instead of page text.
+* LFM3-Audio-2B (2.0B) and LFM3-Omni-2B (2.17B)
+* [https://huggingface.co/LiquidAI/d1-2B d1-2B] and d1-Omni-2B: "decision" models built on LFM3-VL
+* Related: [https://huggingface.co/LiquidAI/LFM2.5-24B-A2B LFM2.5-24B-A2B], a 24B MoE with 2B active (12 Oct 2026)
+
+== In this project ==
+The cheapest real experiment. With default [[run-time]] settings, a 150-step run is about 40 hours on one [[dgx-spark|Spark]], or about 17 hours on all four. Its convolution layers are less common than plain attention, so check framework support in a small test first.
+
+== Further reading ==
+{{card https://www.liquid.ai/blog/lfm3}}

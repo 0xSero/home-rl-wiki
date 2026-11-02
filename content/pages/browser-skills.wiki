@@ -1,0 +1,25 @@
+title: Browser skills to train
+cats: Project
+origin: seed
+at: 2026-11-02T00:52:49.543258Z
+author: Claude
+summary: Original version
+seedhash: d6506b8e40253adc
+---
+'''Browser skills to train''' compares sub-skills of browser use by how much we use them and how well a [[verifier]] can check them. Usage comes from [[sitegeist-usage]].
+
+<div class="tw"><table class="wt">
+<tr><th>Skill</th><th>Our usage</th><th>Reward check</th><th>Fit for RL</th></tr>
+<tr><td>Multi-tab research and collect</td><td>High (enrichment, comparisons)</td><td>Extracted fields compared with independently fetched truth</td><td class="ok">Best start</td></tr>
+<tr><td>Form fill and submit</td><td>High (portals)</td><td>Local echo server returns the submitted values</td><td class="ok">Good</td></tr>
+<tr><td>Canvas drawing</td><td>Low</td><td>Scene check: shapes, labels, bound arrows</td><td class="ok">Good, already built</td></tr>
+<tr><td>Docs and slides editing</td><td>Medium</td><td>Possible with local document fixtures</td><td class="mid">Later</td></tr>
+<tr><td>Inbox triage</td><td>Highest</td><td>Private, signed in, judgement calls</td><td class="mid">Evaluation only, or [[llm-judge|judge]]-based</td></tr>
+</table></div>
+
+== Cross-cutting behaviours ==
+These can be rewarded on every task:
+* finishing in fewer tool calls
+* recovering from a timeout instead of looping
+* clean tabs: none blank or ungrouped, and no stolen focus
+* preferring page reads and clicks over fragile <code>run_js</code> where possible

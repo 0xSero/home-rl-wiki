@@ -1,0 +1,17 @@
+title: Advantage
+cats: Concepts, Algorithms
+origin: seed
+at: 2026-11-02T00:52:49.533502Z
+author: Claude
+summary: Original version
+seedhash: 566840b5c20cf788
+---
+{{youtube HrapVFNBN64 ''Proximal Policy Optimization Explained'': covers advantage and clipping|Edan Meyer}}
+
+The '''advantage''' of an attempt is how much better it did than expected. In [[grpo|GRPO]], "expected" is simply the average reward of its group:
+
+<div class="note">advantage = reward − group mean &nbsp;(often divided by the group's standard deviation)</div>
+
+With 8 attempts and 3 successes, the mean is 0.375. Each success gets +0.625 and each failure −0.375. Training multiplies each attempt's token updates by its advantage, so successes are reinforced and failures discouraged.
+
+Dr. GRPO argues that dividing by the standard deviation adds a bias and drops it.<ref>[https://arxiv.org/abs/2503.20783 Liu et al., "Understanding R1-Zero-Like Training: A Critical Perspective" (Dr. GRPO), 2025]</ref> See [[grpo-variants]].

@@ -1,0 +1,47 @@
+title: DGX Spark
+cats: Hardware
+origin: seed
+at: 2026-11-02T00:52:49.536186Z
+author: Claude
+summary: Original version
+seedhash: 3afadf073e143bc1
+---
+{{infobox NVIDIA DGX Spark
+Units here: 4
+Chip: GB10 (Grace Blackwell)
+Memory: 128 GB unified per unit (512 GB total)
+Bandwidth: ~273 GB/s per unit
+BF16 compute: ~125 TFLOPS per unit (estimate)
+CPU: ARM (aarch64)
+Network: ConnectX-7
+Role here: [[cluster-layout|Training]], small-model experiments}}
+
+{{youtube FW8bCjhl3zE ''NVIDIA DGX Spark in 12 Minutes''|codebasics}}
+
+The '''DGX Spark''' is NVIDIA's desktop Grace Blackwell machine. We have four, set aside for research.
+
+== Strengths ==
+* '''Lots of memory''': 128 GB each holds a frozen 27–33B model plus [[lora|adapter]], activations and optimizer state.
+* '''Four of them''': four independent small-model experiments can run side by side.
+
+== Weaknesses ==
+* '''Slow memory bandwidth''' (~273 GB/s, about 6.5× less than an RTX PRO 6000). Generating text is limited by bandwidth, so Sparks generate [[rollout|rollouts]] slowly.
+* '''Modest compute''': training a 27B model is several times slower than on the PRO 6000s. See [[run-time]].
+* '''ARM CPU''': some RL frameworks don't ship ARM builds. See [[frameworks]].
+
+== Software support ==
+* Unsloth has an official Spark guide and Dockerfile.<ref>[https://unsloth.ai/docs/blog/fine-tuning-llms-with-nvidia-dgx-spark-and-unsloth Unsloth: fine-tuning on DGX Spark]</ref>
+* NeMo-RL ships a linux/arm64 container.<ref>[https://github.com/NVIDIA-NeMo/RL NeMo-RL repository]</ref>
+* slime merged GB10 (sm_121a, arm64) support.<ref>[https://github.com/THUDM/slime/pull/1835 slime PR #1835]</ref>
+* NVIDIA's Spark playbooks cover fine-tuning and vLLM but have no RL playbook.<ref>[https://build.nvidia.com/spark NVIDIA DGX Spark playbooks]</ref>
+
+The compute figure is derived from NVIDIA's sparse FP4 rating divided by 8, and should be replaced with a measured number. Earlier inference work on these units lives in the <code>dsv41-spark-decode</code> track.
+
+== Videos ==
+{{videos
+UaGFUtqravQ ''Introducing NVIDIA DGX Spark'' (GTC 2025)|NVIDIA Developer
+Pf6jCMywpBY ''DGX Spark Live: Scaling On-Device VLM Fine-Tuning''|NVIDIA Developer
+}}
+
+== Further reading ==
+{{cards https://build.nvidia.com/spark https://unsloth.ai/docs/blog/fine-tuning-llms-with-nvidia-dgx-spark-and-unsloth}}

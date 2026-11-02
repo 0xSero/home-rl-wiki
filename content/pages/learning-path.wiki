@@ -1,0 +1,42 @@
+title: Learning path
+cats: Help
+origin: seed
+at: 2026-11-02T00:52:49.543801Z
+author: Claude
+summary: Original version
+seedhash: a3e9d71019085bf8
+---
+{{youtube LPZh9BOjkQs Start here: ''Large Language Models explained briefly''|3Blue1Brown}}
+
+The '''learning path''' is a suggested order for learning RL post-training from zero. Each item builds on the one before. Read the wiki articles alongside: [[post-training]] → [[reinforcement-learning]] → [[grpo]] → [[rollout]] → [[lora]].
+
+# [https://www.youtube.com/watch?v=7xTGNNLPyMI Karpathy, "Deep Dive into LLMs like ChatGPT"] (video). The best intuition for pretraining, then SFT, then RL. Watch the RL hour.
+# [https://huggingface.co/learn/llm-course/chapter12/1 Hugging Face LLM Course, chapter 12]. GRPO step by step, with runnable TRL code.
+# [https://www.deeplearning.ai/short-courses/reinforcement-fine-tuning-llms-grpo/ DeepLearning.AI: Reinforcement fine-tuning with GRPO]. A short course centred on designing rewards.
+# [https://unsloth.ai/docs/get-started/reinforcement-learning-rl-guide/tutorial-train-your-own-reasoning-model-with-grpo Unsloth GRPO tutorial]. Your first real run, on one [[dgx-spark|Spark]].
+# [https://huggingface.co/docs/trl/en/openenv TRL OpenEnv guide] and the [https://github.com/huggingface/trl/blob/main/examples/grpo_wordle/grpo_wordle.ipynb Wordle notebook]. Multi-turn RL with tools, leading straight to the BrowserGym example.
+# [https://thinkingmachines.ai/blog/lora/ LoRA Without Regret]. Why LoRA is enough for RL, and the settings to use.
+# [https://github.com/OpenPipe/ART OpenPipe ART notebooks]. Agent RL with an LLM judge, end to end.
+# [https://cameronrwolfe.substack.com/p/grpo Cameron Wolfe on GRPO]. A careful written derivation, once the intuition is there.
+# [https://rlhfbook.com/ The RLHF Book (Nathan Lambert)]. A free, current reference to come back to.
+# [https://magazine.sebastianraschka.com/p/the-state-of-llm-reasoning-model-training Raschka, "The State of RL for LLM Reasoning"]. A survey of GRPO, DAPO, Dr. GRPO and related methods.
+
+Then look up anything unfamiliar in the [[glossary]].
+
+== Watch, in order ==
+{{videos
+LPZh9BOjkQs 1. ''Large Language Models explained briefly''|3Blue1Brown
+7xTGNNLPyMI 2. ''Deep Dive into LLMs like ChatGPT''|Andrej Karpathy
+2MBJOuVq380 3. ''RLHF: From Zero to ChatGPT''|Hugging Face
+8jtAzxUwDj0 4. ''PPO for LLMs Explained Intuitively''|Julia Turc
+wEa9CmWPWoU 5. ''GRPO Explained under 40 Minutes''|Vizuara
+DhRoTONcyZE 6. ''What is LoRA'', by its inventor|Edward Hu
+SoPE1cUz3Hs 7. A local GRPO run with Unsloth|Bijan Bowen
+gEDl9C8s_-4 8. ''How to Train Your Agent'' with RL|AI Engineer, Kyle Corbitt
+nKJlF-olKmg 9. ''9 Examples of Specification Gaming''|Robert Miles AI Safety
+}}
+
+Every video on the wiki is listed in the [[video-library]].
+
+== Read ==
+{{cards https://huggingface.co/learn/llm-course/chapter12/1 https://thinkingmachines.ai/blog/lora/ https://rlhfbook.com/ https://cameronrwolfe.substack.com/p/grpo}}

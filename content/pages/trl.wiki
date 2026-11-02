@@ -1,0 +1,32 @@
+title: TRL
+cats: Frameworks
+origin: seed
+at: 2026-11-02T00:52:49.539990Z
+author: Claude
+summary: Original version
+seedhash: 661c90ae01560f82
+---
+{{infobox TRL
+Maintainer: Hugging Face
+Version: 1.17.1
+LoRA RL: Yes, through PEFT
+Multi-turn: <code>GRPOTrainer(environment_factory=…)</code>
+Rollouts: vLLM, colocated or server mode
+DGX Spark: Unverified
+Verdict: Recommended main tool}}
+
+'''TRL''' is Hugging Face's post-training library.<ref>[https://github.com/huggingface/trl TRL repository]</ref> Its <code>GRPOTrainer</code> accepts an environment class and turns that class's methods into tools the model can call, which is the shape of a browser agent.
+
+== Why it is the main pick ==
+{{youtube 4uLEMtAdQCM Fine-tuning with SFT, PPO and GRPO using TRL|Ricardo Calix}}
+
+* It ships a '''BrowserGym GRPO example''' (MiniWoB and WebArena through OpenEnv), with an accessibility-tree text variant and a screenshot variant.<ref>[https://github.com/huggingface/trl/tree/main/examples/grpo_browsergym TRL grpo_browsergym example]</ref>
+* The docs and courses are beginner-level. See [[learning-path]].
+* vLLM '''server mode''' can run the generator on one machine (the [[rtx-pro-6000|PRO 6000s]]) and the trainer on another (the [[dgx-spark|Sparks]]).
+
+== Watch out for ==
+* Spark support is only mentioned in a user issue.<ref>[https://github.com/huggingface/trl/issues/6294 TRL issue #6294]</ref> Test on one Spark first.
+* The async trainer is still experimental.
+
+== Further reading ==
+{{cards https://github.com/huggingface/trl/tree/main/examples/grpo_browsergym https://huggingface.co/docs/trl/en/openenv}}

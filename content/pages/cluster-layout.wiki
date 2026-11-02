@@ -1,0 +1,33 @@
+title: Cluster layout
+cats: Hardware, Project
+origin: seed
+at: 2026-11-02T00:52:49.537006Z
+author: Claude
+summary: Original version
+seedhash: c240e30d857c6051
+---
+'''Cluster layout''' is the choice of which machines generate [[rollout|rollouts]], which ones train, and which one judges.
+
+{{fig hw}}
+
+== The four layouts ==
+<div class="tw"><table class="wt">
+<tr><th>Layout</th><th>Generates</th><th>Trains</th><th>DeepSeek stays up?</th><th>Good for</th></tr>
+<tr><td>1 Spark</td><td>Spark</td><td>Same Spark</td><td class="ok">Yes</td><td>Small models; 4 experiments in parallel</td></tr>
+<tr><td>4 Sparks</td><td>4 Sparks</td><td>Same 4 Sparks</td><td class="ok">Yes (as judge)</td><td>Mid-size models without touching pop-os</td></tr>
+<tr><td>PRO 6000s → Sparks</td><td>4 PRO 6000s</td><td>4 Sparks</td><td class="no">No, during runs</td><td>27–33B models</td></tr>
+<tr><td>4 PRO 6000s</td><td>4 PRO 6000s</td><td>Same cards</td><td class="no">No</td><td>Fastest runs</td></tr>
+</table></div>
+
+== Why the split works ==
+{{youtube 5ZlavKF_98U ''Fast LLM Serving with vLLM and PagedAttention'', by the vLLM authors|Anyscale}}
+
+Generation needs bandwidth, which the PRO 6000s have. Training needs memory capacity and compute, and the Sparks have the capacity. [[lora|LoRA]] makes the split cheap: each step, only the adapter (megabytes) is sent from the trainer to the generator, never the base model. Running [[on-off-policy|one step off-policy]] lets both sides work at the same time.
+
+== Browsers ==
+Each attempt needs a headless Chromium with Sitegeist and local test pages. Roughly 16–32 browsers per machine is a reasonable first guess, limited by CPU and RAM, and worth measuring early.
+
+== Videos ==
+{{videos
+m0JnK3b-Am4 ''KV-Cache & PagedAttention: How vLLM Cuts LLM Serving Costs''|Eugen Soloviov
+}}

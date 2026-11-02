@@ -1,0 +1,32 @@
+title: Glossary
+cats: Help
+origin: seed
+at: 2026-11-02T00:52:49.544068Z
+author: Claude
+summary: Original version
+seedhash: f938263862a9e6e0
+---
+<div class="tw"><table class="wt">
+<tr><th>Term</th><th>Meaning</th></tr>
+<tr><td>[[advantage|Advantage]]</td><td>How much better an attempt did than its group average</td></tr>
+<tr><td>Adapter</td><td>The small trained file [[lora|LoRA]] adds on top of a frozen model</td></tr>
+<tr><td>Dense / MoE</td><td>Dense models use every parameter per token; mixture-of-experts (MoE) models use a few "experts" per token</td></tr>
+<tr><td>[[environment|Environment]]</td><td>The world the model acts in, with reset, step and reward</td></tr>
+<tr><td>Episode</td><td>See [[rollout]]</td></tr>
+<tr><td>[[forgetting|Forgetting]]</td><td>Getting worse at untrained skills</td></tr>
+<tr><td>[[grpo|GRPO]]</td><td>The RL algorithm that compares attempts within a group</td></tr>
+<tr><td>Group</td><td>Several attempts at the same task, usually 8</td></tr>
+<tr><td>[[kl-penalty|KL penalty]]</td><td>A brake that keeps the model close to the original</td></tr>
+<tr><td>[[llm-judge|LLM judge]]</td><td>A strong model that grades attempts</td></tr>
+<tr><td>Masking</td><td>Excluding tokens (page text, the task) from the training loss</td></tr>
+<tr><td>[[on-off-policy|On / off-policy]]</td><td>Whether attempts came from the current adapter or an older one</td></tr>
+<tr><td>[[pass-at-k|pass@k]]</td><td>Chance at least one of k attempts succeeds</td></tr>
+<tr><td>[[policy|Policy]]</td><td>The model being trained, base plus adapter</td></tr>
+<tr><td>Rank</td><td>Width of a LoRA adapter's thin matrices</td></tr>
+<tr><td>[[reward|Reward]]</td><td>The score an attempt earns</td></tr>
+<tr><td>[[reward-hacking|Reward hacking]]</td><td>Scoring without doing the task</td></tr>
+<tr><td>RLVR / RLHF</td><td>RL with code-checked rewards / with learned human-preference rewards</td></tr>
+<tr><td>[[rollout|Rollout]]</td><td>One complete attempt at one task</td></tr>
+<tr><td>Step</td><td>One round of generating attempts and updating the adapter</td></tr>
+<tr><td>[[verifier|Verifier]]</td><td>Code that checks an attempt's end state</td></tr>
+</table></div>

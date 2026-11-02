@@ -1,0 +1,30 @@
+title: Model comparison
+cats: Models
+origin: seed
+at: 2026-11-02T00:52:49.537589Z
+author: Claude
+summary: Original version
+seedhash: 6a4f3c1d98c56820
+---
+{{youtube 0QQlYR1r6pQ ''Mixture of Experts (MoE), Visually Explained''|Jia-Bin Huang}}
+
+This table compares the models under consideration. Facts are from the Hugging Face model cards, checked 1 November 2026. '''Active''' is the number of parameters used per token. For mixture-of-experts (MoE) models it is much smaller than the total, so they run fast, but the whole model still has to sit in memory to train.
+
+<div class="tw"><table class="wt">
+<tr><th>Model</th><th>Total / active</th><th>Type</th><th>Context</th><th>License</th><th>Role here</th></tr>
+<tr><td>[[lfm3|LFM3-1.7B]]</td><td class="num">1.7B</td><td>Dense, conv + attention hybrid</td><td class="num">256K</td><td>LFM Open v1.0</td><td class="ok">First experiments</td></tr>
+<tr><td>[[qwen3-5-small|Qwen3.5 0.8–9B]]</td><td class="num">≤9B</td><td>Dense, DeltaNet hybrid, vision</td><td class="num">262K</td><td>Apache-2.0</td><td class="ok">First experiments</td></tr>
+<tr><td>[[qwen3-8-27b|Qwen3.8-27B]]</td><td class="num">27.8B</td><td>Dense, DeltaNet hybrid, vision</td><td class="num">262K</td><td>Apache-2.0</td><td class="ok">Main target</td></tr>
+<tr><td>[[nanbeige4-3-33b|Nanbeige4.3-33B]]</td><td class="num">33.1B</td><td>Dense, Llama-style</td><td class="num">512K</td><td>Apache-2.0</td><td class="ok">Main target</td></tr>
+<tr><td>[[qwen3-8-flash-next|Qwen3.8-Flash-Next]]</td><td class="num">125B (+51B) / 6B</td><td>MoE, 512 experts</td><td class="num">262K</td><td>qwen-community-1.0</td><td class="mid">Later</td></tr>
+<tr><td>[[glm-5-3-flash|GLM-5.3-Flash]]</td><td class="num">320B / 18B</td><td>MoE, 288 experts</td><td class="num">1M</td><td>MIT</td><td class="mid">Later</td></tr>
+<tr><td>[[deepseek-v4-1-flash|DeepSeek-V4.1-Flash-1017]]</td><td class="num">552B (+196B) / 8–16B</td><td>MoE, 384 experts</td><td class="num">1M</td><td>MIT</td><td class="no">Judge / teacher only</td></tr>
+</table></div>
+
+See [[run-time]] for how long each takes to train on each [[cluster-layout|layout]].
+
+== Videos ==
+{{videos
+mwO6v4BlgZQ ''Mixtral of Experts'' (paper explained)|Yannic Kilcher
+UiX8K-xBUpE Sparse mixture-of-experts layers built step by step|Umar Jamil
+}}

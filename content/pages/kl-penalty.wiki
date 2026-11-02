@@ -1,0 +1,21 @@
+title: KL penalty
+cats: Concepts, Algorithms
+origin: seed
+at: 2026-11-02T00:52:49.534052Z
+author: Claude
+summary: Original version
+seedhash: b77cc565f246574a
+---
+{{youtube SxGYPqCgJWM ''Intuitively Understanding the KL Divergence''|Adian Liusie}}
+
+A '''KL penalty''' is an optional term that charges the [[policy]] for drifting away from the original model. KL (Kullback–Leibler divergence) measures how different two models' token probabilities are.
+
+It acts as a brake. With it, the model changes more slowly and keeps more of its original behaviour. Without it, learning is faster but [[forgetting]] and [[reward-hacking]] are more likely. Many recent recipes set it to zero or very low and rely on clipping and a modest number of steps instead.
+
+With [[lora|LoRA]] the reference model is free: it is the same base model with the adapter switched off, so no second copy is needed in memory.
+
+== Videos ==
+{{videos
+LJwtEaP2xKA KL divergence explained through secret codes|Ben Lambert
+tXE23653JrU ''Fantastic KL Divergence and How to (Actually) Compute It'': the estimators RL losses use|Jia-Bin Huang
+}}

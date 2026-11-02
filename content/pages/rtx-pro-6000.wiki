@@ -1,0 +1,29 @@
+title: RTX PRO 6000
+cats: Hardware
+origin: seed
+at: 2026-11-02T00:52:49.536686Z
+author: Claude
+summary: Original version
+seedhash: 607416d57b938250
+---
+{{infobox RTX PRO 6000 Blackwell
+Units here: 4, in host pop-os
+Memory: 96 GB GDDR7 per card (384 GB total)
+Bandwidth: ~1.8 TB/s per card
+BF16 compute: ~500 TFLOPS per card (estimate)
+Now serving: [[deepseek-v4-1-flash|DeepSeek-V4.1-Flash-1017]] (container local-studio-llm)
+Role here: [[rollout|Rollouts]] or [[llm-judge|judge]]}}
+
+The four '''RTX PRO 6000''' cards in '''pop-os''' are the fast machines. Today they serve DeepSeek-V4.1-Flash-1017 for daily inference.
+
+== Why they matter for RL ==
+Generating text is limited by memory bandwidth. At ~1.8 TB/s per card, they generate [[rollout|rollouts]] roughly 6× faster than a [[dgx-spark|Spark]]. They also train about 4× faster.
+
+== The open question ==
+Can they be lent to RL runs? There are three options:
+* '''Keep DeepSeek serving''' and use it as the [[llm-judge]]. The Sparks then do all generation and training.
+* '''Nights and weekends''': evict DeepSeek during runs.
+* '''Dedicated''': fastest runs, but no DeepSeek.
+This is question 4 on the [[questions]] page. The [[run-time]] estimator shows each case.
+
+Operational note: after any reboot, check that local-studio-llm was not auto-restarted during a tuning campaign.

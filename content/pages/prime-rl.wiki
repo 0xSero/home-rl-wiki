@@ -1,0 +1,11 @@
+title: prime-rl
+cats: Frameworks
+origin: seed
+at: 2026-11-02T00:52:49.541442Z
+author: Claude
+summary: Original version
+seedhash: e73dc01637caab30
+---
+{{stub}}
+
+'''prime-rl''' (Prime Intellect, v0.10.0) is an asynchronous RL trainer: FSDP2 for training, vLLM for rollouts, expert parallelism for MoE, and LoRA through a <code>[model.lora]</code> config block.<ref>[https://github.com/PrimeIntellect-ai/prime-rl prime-rl repository] and [https://github.com/PrimeIntellect-ai/prime-rl/blob/main/docs/advanced.md advanced docs]</ref> Environments are written with the companion '''verifiers''' library.<ref>[https://github.com/PrimeIntellect-ai/verifiers verifiers repository]</ref> We found no evidence of Spark support.
